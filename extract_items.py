@@ -70,6 +70,25 @@ PREFIX_SLOT = {
 KEEP_UPPER = {"RL", "RLCS", "II", "III", "IV", "GT", "GTS", "GTE",
               "XL", "XR", "FX", "2D", "3D", "DTS", "DT5"}
 
+# Paint colors: id → name (source: rocketleagueapi/items package)
+PAINTS: dict[int, str] = {
+    1: "Crimson", 2: "Lime", 3: "Black", 4: "Sky Blue", 5: "Cobalt",
+    6: "Burnt Sienna", 7: "Forest Green", 8: "Purple", 9: "Pink",
+    10: "Orange", 11: "Grey", 12: "Titanium White", 13: "Saffron", 14: "Gold",
+}
+
+# Certifications: id → name (source: rocketleagueapi/items package)
+CERTIFICATIONS: dict[int, str] = {
+    1: "Aviator", 2: "Playmaker", 3: "Show-off", 4: "Acrobat", 5: "Tactician",
+    6: "Sweeper", 7: "Guardian", 8: "Scorer", 9: "Juggler", 10: "Sniper",
+    11: "Paragon", 12: "Goalkeeper", 13: "Striker", 14: "Turtle", 15: "Victor",
+}
+
+# Categories that support certifications
+CERTIFIABLE_CATEGORIES = {
+    "body", "decal", "wheel", "boost", "antenna", "topper", "trail", "goal_explosion",
+}
+
 
 # ── ProductDump helpers ────────────────────────────────────────────────────────
 
@@ -334,6 +353,8 @@ def scan_new_upk_items(asset_index: dict, loc_map: dict[str, dict[str, str]]) ->
             "blueprint":        False,
             "source":           "upk_scan" + ("+psynet_cache" if full_stem in loc_map else ""),
             "thumbnail_asset":  full_stem + "_t",
+            "painted_variants": [],
+            "certifications":   [],
             "translations":     merged_translations,
         })
 
@@ -385,6 +406,8 @@ def build_output() -> dict:
         for lang_code in LANGUAGES.keys():
             merged_translations[lang_code] = translations.get(lang_code) or eng_display
 
+        is_paintable = bool(entry.get("Product Paintable", False))
+        is_tradable  = not bool(restrictions)
         items.append({
             "id":               entry["Product Id"],
             "name":             eng_display,
@@ -392,11 +415,13 @@ def build_output() -> dict:
             "category":         cat_display,
             "quality_id":       quality_id,
             "quality":          QUALITY_MAP.get(quality_id, "Unknown"),
-            "paintable":        entry.get("Product Paintable", False),
-            "tradable":         not bool(restrictions),
+            "paintable":        is_paintable,
+            "tradable":         is_tradable,
             "blueprint":        entry.get("Product Blueprint", False),
             "source":           "product_dump",
             "thumbnail_asset":  asset,
+            "painted_variants": list(PAINTS.values()) if is_paintable else [],
+            "certifications":   list(CERTIFICATIONS.values()) if (is_tradable and cat_id in CERTIFIABLE_CATEGORIES) else [],
             "translations":     merged_translations,
         })
 

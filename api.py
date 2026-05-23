@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from extract_items import generate, OUTPUT_FILE, LANGUAGES
+from extract_items import generate, OUTPUT_FILE, LANGUAGES, PAINTS, CERTIFICATIONS
 
 THUMBNAILS_DIR = Path("/home/ubuntu/velrl/thumbnails")
 THUMBNAILS_BASE = "/thumbnails"
@@ -144,9 +144,10 @@ def _thumbnail_url(item: dict) -> str | None:
     return f"{THUMBNAILS_BASE}/{asset}.png" if png.exists() else None
 
 
-def format_item(item: dict, lang_key: str) -> dict:
+def format_item(item: dict, lang_key: str, full: bool = False) -> dict:
     """Resolve localized name, attach thumbnail_url, strip internal fields."""
-    formatted = {k: v for k, v in item.items() if k not in ("translations", "thumbnail_asset")}
+    exclude = {"thumbnail_asset"} if full else {"translations", "thumbnail_asset"}
+    formatted = {k: v for k, v in item.items() if k not in exclude}
     translations = item.get("translations", {})
     formatted["name"] = translations.get(lang_key) or item.get("name")
     formatted["thumbnail_url"] = _thumbnail_url(item)
@@ -160,10 +161,11 @@ def root():
         "version": "2.0.0",
         "docs": "/docs",
         "endpoints": {
-            "products": "/v2/rl/products",
+            "products":   "/v2/rl/products",
             "categories": "/v2/rl/categories",
-            "meta": "/v2/rl/meta",
-            "refresh": "/v2/rl/refresh"
+            "attributes": "/v2/rl/attributes",
+            "meta":       "/v2/rl/meta",
+            "refresh":    "/v2/rl/refresh",
         }
     }
 
@@ -175,6 +177,7 @@ def get_products(
     lang: Optional[str] = Query(None, description="Language code (e.g. 'en', 'es', 'INT', 'ESN')"),
     limit: int = Query(0, ge=0, description="Max results (0 = no limit)"),
     offset: int = Query(0, ge=0, description="Offset for pagination"),
+    full: bool = Query(False, description="Include painted_variants, certifications, and all translations"),
 ):
     data = _load()
     items = data["items"]
@@ -205,7 +208,7 @@ def get_products(
             "limit": limit,
             "offset": offset,
         },
-        "products": [format_item(i, lang_key) for i in items],
+        "products": [format_item(i, lang_key, full=full) for i in items],
     }
 
 
@@ -213,13 +216,14 @@ def get_products(
 def get_product(
     product_id: str,
     lang: Optional[str] = Query(None, description="Language code (e.g. 'en', 'es', 'INT', 'ESN')"),
+    full: bool = Query(False, description="Include painted_variants, certifications, and all translations"),
 ):
     data = _load()
     lang_key = get_lang_key(lang)
     pid = product_id.strip().lower()
     for item in data["items"]:
         if str(item["id"]).lower() == pid:
-            return format_item(item, lang_key)
+            return format_item(item, lang_key, full=full)
     raise HTTPException(status_code=404, detail=f"Product '{product_id}' not found")
 
 
@@ -227,6 +231,14 @@ def get_product(
 def get_categories():
     data = _load()
     return {"categories": data["meta"]["categories"]}
+
+
+@app.get("/v2/rl/attributes", summary="Paint colors and certifications lookup tables")
+def get_attributes():
+    return {
+        "paints": {str(k): v for k, v in PAINTS.items()},
+        "certifications": {str(k): v for k, v in CERTIFICATIONS.items()},
+    }
 
 
 @app.get("/v2/rl/meta", summary="Metadata: game version, item count, generated timestamp")
