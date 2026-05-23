@@ -1,4 +1,4 @@
-# 📡 API Endpoints
+# API Endpoints
 
 VelocityRL exposes endpoints under `/v2/rl/` to browse, search, and manage localized item configurations. All endpoints are accessible over secure HTTPS.
 

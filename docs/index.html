@@ -593,29 +593,19 @@
         <div class="nav-section-title">Documentation</div>
         <ul class="nav-list">
           <li class="nav-item active" data-target="introduction">
-            <a href="#introduction">
-              <span>🚀</span> Introduction
-            </a>
+            <a href="#introduction">Introduction</a>
           </li>
           <li class="nav-item" data-target="architecture">
-            <a href="#architecture">
-              <span>🏛️</span> Architecture
-            </a>
+            <a href="#architecture">Architecture</a>
           </li>
           <li class="nav-item" data-target="rate-limiting">
-            <a href="#rate-limiting">
-              <span>🚦</span> Rate Limiting
-            </a>
+            <a href="#rate-limiting">Rate Limiting</a>
           </li>
           <li class="nav-item" data-target="localization">
-            <a href="#localization">
-              <span>🌍</span> Localization
-            </a>
+            <a href="#localization">Localization</a>
           </li>
           <li class="nav-item" data-target="endpoints">
-            <a href="#endpoints">
-              <span>📡</span> API Endpoints
-            </a>
+            <a href="#endpoints">API Endpoints</a>
           </li>
         </ul>
       </nav>
@@ -645,7 +635,7 @@
         
         <!-- SECTION 1: INTRODUCTION -->
         <section id="introduction" class="doc-section active">
-          <h1>🚀 <span class="title-gradient">VelocityRL API</span></h1>
+          <h1><span class="title-gradient">VelocityRL API</span></h1>
           <p>Welcome to the **VelocityRL API** developer documentation. This is a high-performance, developer-centric, secure API designed for querying, searching, and managing Rocket League products and item metadata parsed directly from localized game files.</p>
           
           <div class="section-divider"></div>
@@ -655,19 +645,19 @@
           
           <div class="card-grid">
             <div class="card">
-              <div class="card-icon">⚡</div>
+              <div class="card-icon">&#9670;</div>
               <div class="card-title">High Performance</div>
               <div class="card-text">Serving data atomically from memory using a fast, hot-reloading sidecar design. Built on FastAPI.</div>
             </div>
             
             <div class="card">
-              <div class="card-icon">🌍</div>
+              <div class="card-icon">&#9670;</div>
               <div class="card-title">Localization Ready</div>
               <div class="card-text">Support for both standard ISO and internal Psyonix 3-letter upper/lowercase language codes.</div>
             </div>
             
             <div class="card">
-              <div class="card-icon">🛡️</div>
+              <div class="card-icon">&#9670;</div>
               <div class="card-title">Rate Limiting & HTTPS</div>
               <div class="card-text">Built-in rolling window IP limiters and HTTPS/SSL certificates via Let's Encrypt behind Nginx.</div>
             </div>
@@ -760,7 +750,7 @@
         
         <!-- SECTION 2: ARCHITECTURE -->
         <section id="architecture" class="doc-section">
-          <h1>🏛️ <span class="title-gradient">Sidecar Architecture</span></h1>
+          <h1><span class="title-gradient">Sidecar Architecture</span></h1>
           <p>VelocityRL utilizes a highly efficient **Sidecar Architecture** designed for high throughput, atomic data serving, and zero-downtime hot reloads on headless Linux servers.</p>
           
           <div class="mermaid">
@@ -803,7 +793,7 @@
         
         <!-- SECTION 3: RATE LIMITING -->
         <section id="rate-limiting" class="doc-section">
-          <h1>🚦 <span class="title-gradient">Rate Limiting</span></h1>
+          <h1><span class="title-gradient">Rate Limiting</span></h1>
           <p>To maintain service stability, prevent brute-forcing, and defend against denial-of-service attempts, VelocityRL employs a custom, high-performance in-memory **Sliding Window Rate Limiter**.</p>
           
           <div class="section-divider"></div>
@@ -888,7 +878,7 @@ X-RateLimit-Reset: 42
         
         <!-- SECTION 4: LOCALIZATION -->
         <section id="localization" class="doc-section">
-          <h1>🌍 <span class="title-gradient">Global Localization</span></h1>
+          <h1><span class="title-gradient">Global Localization</span></h1>
           <p>VelocityRL supports translation capabilities matching Rocket League's global client distribution. It resolves, caches, and filters dynamic asset translations across **12 official languages** directly inside the API payload.</p>
           
           <div class="section-divider"></div>
@@ -1037,7 +1027,7 @@ X-RateLimit-Reset: 42
         
         <!-- SECTION 5: API ENDPOINTS -->
         <section id="endpoints" class="doc-section">
-          <h1>📡 <span class="title-gradient">API Endpoints Reference</span></h1>
+          <h1><span class="title-gradient">API Endpoints Reference</span></h1>
           <p>VelocityRL exposes endpoints under <code>/v2/rl/</code> to browse, search, and manage localized item configurations. All endpoints are accessible over secure HTTPS.</p>
           
           <div class="section-divider"></div>

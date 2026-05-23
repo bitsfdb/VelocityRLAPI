@@ -1,6 +1,8 @@
-# 🚀 VelocityRL API
+# VelocityRL API
 
 Welcome to the **VelocityRL API** developer documentation. This is a high-performance, developer-centric, secure API designed for querying, searching, and managing Rocket League products and item metadata parsed directly from localized game files.
+
+> This API is used by the **[VelocityRL Repository](https://github.com/bitsfdb/VelocityRLAPI)** to power item metadata lookups and localized name resolution.
 
 ## Overview
 

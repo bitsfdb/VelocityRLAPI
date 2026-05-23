@@ -1,4 +1,4 @@
-# 🏛️ Architecture
+# Architecture
 
 VelocityRL utilizes a highly efficient **Sidecar Architecture** designed for high throughput, atomic data serving, and zero-downtime hot reloads on headless Linux servers.
 

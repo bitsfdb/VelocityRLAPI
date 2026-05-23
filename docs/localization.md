@@ -1,4 +1,4 @@
-# 🌍 Localization
+# Localization
 
 VelocityRL supports translation capabilities matching Rocket League's global client distribution. It resolves, caches, and filters dynamic asset translations across **12 official languages** directly inside the API payload.
 

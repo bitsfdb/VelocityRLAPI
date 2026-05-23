@@ -1,4 +1,4 @@
-# 🚦 Rate Limiting
+# Rate Limiting
 
 To maintain service stability, prevent brute-forcing, and defend against denial-of-service attempts, VelocityRL employs a custom, high-performance in-memory **Sliding Window Rate Limiter**.
 
