@@ -6,6 +6,20 @@ Welcome to the **VelocityRL API** developer documentation. This is a high-perfor
 
 > This API is used by the **[VelocityRL Repository](https://github.com/bitsfdb/VelocityRLAPI)** to power item metadata lookups and localized name resolution.
 
+## Architecture
+
+```mermaid
+graph TD
+    UPK[Rocket League .upk Files] -->|Parser| Extractor[extract_items.py]
+    Psynet[Psynet Web Cache] -->|Metadata| Extractor
+    Extractor -->|Dumps JSON| DB[items.json]
+    Watcher[watcher.py] -->|Polls updates| Extractor
+    DB -->|Atomic Thread-Safe Load| API[api.py FastAPI]
+    API -->|Serves over HTTPS| Client[API Client]
+```
+
+---
+
 ## Overview
 
 The API serves as a secure, fast, and unified source of truth for Rocket League items, translating complex internal asset names (e.g., `wheel_SoccarBall_SF`) into clean, localized product names across 12 distinct game-supported languages.

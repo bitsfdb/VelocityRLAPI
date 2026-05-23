@@ -15,6 +15,7 @@ Then drop the output into .cache/ProductDump.json
 import base64
 import json
 import re
+import tarfile
 import urllib.request
 import urllib.error
 import hashlib
@@ -88,6 +89,8 @@ CERTIFICATIONS: dict[int, str] = {
 CERTIFIABLE_CATEGORIES = {
     "body", "decal", "wheel", "boost", "antenna", "topper", "trail", "goal_explosion",
 }
+
+ITEMS_TGZ = CACHE_DIR / "items-3.2.16.tgz"
 
 
 # ── ProductDump helpers ────────────────────────────────────────────────────────
@@ -363,6 +366,46 @@ def scan_new_upk_items(asset_index: dict, loc_map: dict[str, dict[str, str]]) ->
     return new_items
 
 
+def load_player_titles() -> list[dict]:
+    """Load all player titles from the rocketleagueapi/items tgz cache."""
+    if not ITEMS_TGZ.exists():
+        return []
+    try:
+        with tarfile.open(ITEMS_TGZ) as t:
+            f = t.extractfile("package/dist/cjs/parsed/titles.json")
+            raw: dict = json.load(f)
+    except Exception:
+        return []
+
+    titles = []
+    for internal_key, entry in raw.items():
+        display = entry.get("name", "").strip()
+        if not display or display == "None":
+            continue
+        color = entry.get("color") or None
+        eng_name = display
+        merged_translations = {lang: eng_name for lang in LANGUAGES}
+        titles.append({
+            "id":               None,
+            "name":             eng_name,
+            "internal_name":    internal_key,
+            "category_id":      "player_title",
+            "category":         "Player Title",
+            "quality_id":       None,
+            "quality":          "Unknown",
+            "paintable":        False,
+            "tradable":         False,
+            "blueprint":        False,
+            "color":            color,
+            "source":           "titles_cache",
+            "thumbnail_asset":  "",
+            "painted_variants": [],
+            "certifications":   [],
+            "translations":     merged_translations,
+        })
+    return titles
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def get_game_version() -> str:
@@ -386,10 +429,12 @@ def build_output() -> dict:
 
     items: list[dict] = []
 
-    # 1. Known items from ProductDump
+    # 1. Known items from ProductDump (skip player_title slot — titles_cache is authoritative)
     for entry in dump:
         slot_id = entry.get("Slot Index", -1)
         if slot_id not in SLOT_MAP:
+            continue
+        if SLOT_MAP[slot_id][0] == "player_title":
             continue
         quality_id = entry.get("Product Quality Id", 0)
         restrictions = entry.get("Product Trade Restrictions", [])
@@ -433,6 +478,9 @@ def build_output() -> dict:
     # 2. New items only in game files
     new_items = scan_new_upk_items(asset_index, loc_map)
     items.extend(new_items)
+
+    # 3. Player titles from rocketleagueapi/items tgz cache
+    items.extend(load_player_titles())
 
     items.sort(key=lambda x: (x["category_id"], x["name"]))
 
