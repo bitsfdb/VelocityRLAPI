@@ -1,0 +1,22 @@
+# Generated outputs — do not commit
+items.json
+thumbnails/
+
+# Cache files
+.cache/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Env / secrets
+.env
+*.env
+
+# Editor
+.vscode/
+.idea/
+
+# Runtime state
+.watcher_state.json

@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VelocityRL API Documentation</title>
+  
+  <!-- Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Mermaid.js for flowcharts -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  
+  <style>
+    :root {
+      --bg-main: #06070a;
+      --bg-sidebar: #0b0c12;
+      --bg-card: #11131e;
+      --bg-code: #07080d;
+      --border-color: #1e2235;
+      --border-accent: #2e3552;
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      
+      /* Vibrant Solid Gradients */
+      --brand-gradient: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);
+      --hover-gradient: linear-gradient(135deg, #c084fc 0%, #60a5fa 100%);
+      --card-gradient: linear-gradient(180deg, #141724 0%, #0d0f17 100%);
+      --header-gradient: linear-gradient(90deg, #181924 0%, #11121a 100%);
+      
+      --accent-purple: #a855f7;
+      --accent-blue: #3b82f6;
+      
+      --method-get: #10b981;
+      --method-post: #a855f7;
+      
+      --glow-purple: 0 0 15px rgba(168, 85, 247, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-color) var(--bg-main);
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-main);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--border-accent);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Layout Wrapper */
+    .app-container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Sidebar Styling */
+    .sidebar {
+      width: 300px;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .brand-logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: var(--brand-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.025em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo::before {
+      content: '';
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      background: var(--brand-gradient);
+      border-radius: 3px;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 24px 16px;
+      overflow-y: auto;
+    }
+
+    .nav-section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+      padding-left: 12px;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 28px;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .nav-item a:hover {
+      color: var(--text-primary);
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+
+    .nav-item.active a {
+      color: var(--text-primary);
+      background: rgba(168, 85, 247, 0.08);
+      border-color: rgba(168, 85, 247, 0.2);
+      font-weight: 600;
+    }
+
+    .sidebar-footer {
+      padding: 20px 24px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--method-get);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--method-get);
+    }
+
+    .domain-link {
+      font-size: 0.8rem;
+      color: var(--accent-blue);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .domain-link:hover {
+      color: #60a5fa;
+    }
+
+    /* Main Content Area */
+    .content-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top Banner Header */
+    .top-header {
+      height: 70px;
+      border-bottom: 1px solid var(--border-color);
+      background-color: var(--bg-sidebar);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      flex-shrink: 0;
+    }
+
+    .search-doc-placeholder {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 4px;
+      background-color: var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    .badge-primary {
+      background: var(--brand-gradient);
+      color: var(--text-primary);
+    }
+
+    /* Scrollable Page Wrapper */
+    .page-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 48px 40px 80px 40px;
+      max-width: 1012px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Section Control (SPA behavior) */
+    .doc-section {
+      display: none;
+      animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .doc-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Typography inside content */
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+      position: relative;
+    }
+
+    .title-gradient {
+      background: var(--brand-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .section-divider {
+      height: 1px;
+      background-color: var(--border-color);
+      margin: 32px 0;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-top: 40px;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-top: 28px;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    p {
+      margin-bottom: 18px;
+      color: var(--text-secondary);
+      font-size: 0.975rem;
+      line-height: 1.7;
+    }
+
+    ul, ol {
+      margin-bottom: 20px;
+      padding-left: 20px;
+      color: var(--text-secondary);
+    }
+
+    li {
+      margin-bottom: 8px;
+      font-size: 0.975rem;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      background-color: var(--bg-code);
+      border: 1px solid var(--border-color);
+      padding: 3px 6px;
+      border-radius: 4px;
+      color: #f472b6;
+    }
+
+    /* Preformatted Code Blocks */
+    .code-block-wrapper {
+      position: relative;
+      margin: 20px 0;
+      background-color: var(--bg-code);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .code-block-header {
+      padding: 12px 18px;
+      background-color: #0b0c12;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-lang {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .copy-btn {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: none;
+      border: 1px solid var(--border-color);
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      color: var(--text-primary);
+      background-color: rgba(255, 255, 255, 0.05);
+      border-color: var(--border-accent);
+    }
+
+    .copy-btn.copied {
+      background: var(--brand-gradient);
+      color: var(--text-primary);
+      border-color: transparent;
+    }
+
+    pre {
+      padding: 20px;
+      overflow-x: auto;
+      margin: 0;
+    }
+
+    pre code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      color: #e5e7eb;
+      background: none;
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      line-height: 1.5;
+    }
+
+    /* Tables */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 24px 0;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: var(--header-gradient);
+      color: var(--text-primary);
+      font-weight: 600;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: rgba(255, 255, 255, 0.01);
+    }
+
+    /* Method Labels (GET/POST etc.) */
+    .method {
+      display: inline-block;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 4px;
+      color: #fff;
+      text-align: center;
+      letter-spacing: 0.05em;
+    }
+
+    .method-get {
+      background-color: var(--method-get);
+    }
+
+    .method-post {
+      background-color: var(--method-post);
+    }
+
+    /* Grid cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 24px 0;
+    }
+
+    .card {
+      background: var(--card-gradient);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 24px;
+      transition: all 0.25s ease;
+    }
+
+    .card:hover {
+      border-color: var(--border-accent);
+      transform: translateY(-2px);
+      box-shadow: var(--glow-purple);
+    }
+
+    .card-icon {
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+      background: var(--brand-gradient);
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      color: var(--text-primary);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .card-text {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 0;
+    }
+
+    /* API Endpoint Panel */
+    .endpoint-panel {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 32px 0;
+      background-color: var(--bg-sidebar);
+    }
+
+    .endpoint-panel-header {
+      padding: 16px 20px;
+      background-color: rgba(255, 255, 255, 0.015);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .endpoint-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .endpoint-panel-body {
+      padding: 24px;
+      background-color: var(--bg-main);
+    }
+
+    /* Mermaid custom styles overrides */
+    .mermaid {
+      background-color: var(--bg-code);
+      padding: 24px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      margin: 24px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-logo">VelocityRL</div>
+        <div class="brand-subtitle">Developer Portal</div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Documentation</div>
+        <ul class="nav-list">
+          <li class="nav-item active" data-target="introduction">
+            <a href="#introduction">
+              <span>🚀</span> Introduction
+            </a>
+          </li>
+          <li class="nav-item" data-target="architecture">
+            <a href="#architecture">
+              <span>🏛️</span> Architecture
+            </a>
+          </li>
+          <li class="nav-item" data-target="rate-limiting">
+            <a href="#rate-limiting">
+              <span>🚦</span> Rate Limiting
+            </a>
+          </li>
+          <li class="nav-item" data-target="localization">
+            <a href="#localization">
+              <span>🌍</span> Localization
+            </a>
+          </li>
+          <li class="nav-item" data-target="endpoints">
+            <a href="#endpoints">
+              <span>📡</span> API Endpoints
+            </a>
+          </li>
+        </ul>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span>API Online</span>
+        </div>
+        <a href="https://api.sfdb.dev" target="_blank" class="domain-link">api.sfdb.dev ↗</a>
+      </div>
+    </aside>
+    
+    <!-- Main Content Area -->
+    <main class="content-area">
+      
+      <header class="top-header">
+        <div class="search-doc-placeholder">VelocityRL Products API Documentation Portal</div>
+        <div class="header-actions">
+          <span class="badge">v2.0.0</span>
+          <span class="badge badge-primary">HTTPS Active</span>
+        </div>
+      </header>
+      
+      <!-- Dynamic Pages (Tabbed Single Page Content) -->
+      <div class="page-container">
+        
+        <!-- SECTION 1: INTRODUCTION -->
+        <section id="introduction" class="doc-section active">
+          <h1>🚀 <span class="title-gradient">VelocityRL API</span></h1>
+          <p>Welcome to the **VelocityRL API** developer documentation. This is a high-performance, developer-centric, secure API designed for querying, searching, and managing Rocket League products and item metadata parsed directly from localized game files.</p>
+          
+          <div class="section-divider"></div>
+          
+          <h2>Overview</h2>
+          <p>The API serves as a secure, fast, and unified source of truth for Rocket League items, translating complex internal asset names (e.g., <code>wheel_SoccarBall_SF</code>) into clean, localized product names across 12 distinct game-supported languages.</p>
+          
+          <div class="card-grid">
+            <div class="card">
+              <div class="card-icon">⚡</div>
+              <div class="card-title">High Performance</div>
+              <div class="card-text">Serving data atomically from memory using a fast, hot-reloading sidecar design. Built on FastAPI.</div>
+            </div>
+            
+            <div class="card">
+              <div class="card-icon">🌍</div>
+              <div class="card-title">Localization Ready</div>
+              <div class="card-text">Support for both standard ISO and internal Psyonix 3-letter upper/lowercase language codes.</div>
+            </div>
+            
+            <div class="card">
+              <div class="card-icon">🛡️</div>
+              <div class="card-title">Rate Limiting & HTTPS</div>
+              <div class="card-text">Built-in rolling window IP limiters and HTTPS/SSL certificates via Let's Encrypt behind Nginx.</div>
+            </div>
+          </div>
+          
+          <h2>Quick Start</h2>
+          <p>The public API is hosted securely at <code>api.sfdb.dev</code>. You can easily fetch localized items using curl:</p>
+          
+          <div class="code-block-wrapper">
+            <div class="code-block-header">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code>curl -s "https://api.sfdb.dev/v2/rl/products?lang=es&category=wheel&search=cristiano&limit=1"</code></pre>
+          </div>
+          
+          <h3>Response Payload</h3>
+          <div class="code-block-wrapper">
+            <div class="code-block-header">
+              <span class="code-lang">json</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code>{
+  "meta": {
+    "returned": 1,
+    "total_filtered": 5,
+    "limit": 1,
+    "offset": 0
+  },
+  "products": [
+    {
+      "id": 386,
+      "name": "Cristiano",
+      "category_id": "wheel",
+      "category": "Wheels",
+      "quality_id": 3,
+      "quality": "Very Rare",
+      "paintable": true,
+      "tradable": true,
+      "blueprint": false,
+      "source": "product_dump",
+      "thumbnail_url": "/thumbnails/wheel_soccerball_t.png"
+    }
+  ]
+}</code></pre>
+          </div>
+
+          <h2>Base Paths</h2>
+          <p>All requests should be routed over <code>HTTPS</code> to the base path: <code>https://api.sfdb.dev</code></p>
+          
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Endpoint</th>
+                  <th>Method</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>/v2/rl/products</code></td>
+                  <td><span class="method method-get">GET</span></td>
+                  <td>Paginated and filtered search of Rocket League items.</td>
+                </tr>
+                <tr>
+                  <td><code>/v2/rl/products/{product_id}</code></td>
+                  <td><span class="method method-get">GET</span></td>
+                  <td>Retrieve detailed metadata for a single item by its ID.</td>
+                </tr>
+                <tr>
+                  <td><code>/v2/rl/categories</code></td>
+                  <td><span class="method method-get">GET</span></td>
+                  <td>List all available item categories along with counts.</td>
+                </tr>
+                <tr>
+                  <td><code>/v2/rl/meta</code></td>
+                  <td><span class="method method-get">GET</span></td>
+                  <td>Retrieve API metadata, dump fingerprints, and database stats.</td>
+                </tr>
+                <tr>
+                  <td><code>/v2/rl/refresh</code></td>
+                  <td><span class="method method-post">POST</span></td>
+                  <td>Force the sidecar parser to regenerate item database from source UPKs.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        
+        <!-- SECTION 2: ARCHITECTURE -->
+        <section id="architecture" class="doc-section">
+          <h1>🏛️ <span class="title-gradient">Sidecar Architecture</span></h1>
+          <p>VelocityRL utilizes a highly efficient **Sidecar Architecture** designed for high throughput, atomic data serving, and zero-downtime hot reloads on headless Linux servers.</p>
+          
+          <div class="mermaid">
+            graph TD
+                UPK[Rocket League .upk Files] -->|Parser| Extractor[extract_items.py]
+                Psynet[Psynet Web Cache] -->|Metadata| Extractor
+                Extractor -->|Dumps JSON| DB[items.json]
+                Watcher[watcher.py] -->|Polls updates| Extractor
+                DB -->|Atomic Thread-Safe Load| API[api.py FastAPI]
+                API -->|Serves over HTTPS| Client[API Client]
+          </div>
+          
+          <div class="section-divider"></div>
+          
+          <h2>Technical Components</h2>
+          
+          <h3>1. The Asset Mapping Engine (<code>extract_items.py</code>)</h3>
+          <p>Responsible for scanning Rocket League's Unreal Engine 3 package system (<code>.upk</code> files) and parsing localization charts.</p>
+          <ul>
+            <li><strong>Core Logic</strong>: Reverses names and tags from the game's binary assets, mapping raw internal names (like <code>wheel_SoccarBall_SF</code>) to localized display names (like "Cristiano").</li>
+            <li><strong>Psynet Cache</strong>: Queries and parses Psynet web cache structures to merge additional item tags and overrides.</li>
+            <li><strong>Output Database</strong>: Automatically compiles everything into a single structured database file: <code>items.json</code>.</li>
+          </ul>
+          
+          <h3>2. The Daemon Watcher (<code>watcher.py</code>)</h3>
+          <p>A lightweight daemon running in the background to ensure data freshness without introducing latency to live requests.</p>
+          <ul>
+            <li><strong>Function</strong>: Monitors game installation directories for binary configuration overrides or updates.</li>
+            <li><strong>Coordination</strong>: When it detects a change, it triggers the extraction process asynchronously and signals the API server to hot-reload.</li>
+          </ul>
+          
+          <h3>3. High-Performance API Server (<code>api.py</code>)</h3>
+          <p>Built on FastAPI and optimized for maximum concurrent throughput.</p>
+          <ul>
+            <li><strong>Memory-Atomic Operations</strong>: Rather than hitting a disk database on every request, <code>api.py</code> loads <code>items.json</code> directly into system memory upon startup.</li>
+            <li><strong>Thread-Safe Hot Reloading</strong>: Employs a thread lock (<code>_reload_lock</code>) to coordinate data refreshes. If the database is regenerated, the API reloads the in-memory payload instantly with zero downtime.</li>
+            <li><strong>Asset Synchronization</strong>: If the database <code>items.json</code> is missing on boot, the API automatically triggers the mapping engine to generate it synchronously before starting to handle client connections.</li>
+          </ul>
+        </section>
+        
+        <!-- SECTION 3: RATE LIMITING -->
+        <section id="rate-limiting" class="doc-section">
+          <h1>🚦 <span class="title-gradient">Rate Limiting</span></h1>
+          <p>To maintain service stability, prevent brute-forcing, and defend against denial-of-service attempts, VelocityRL employs a custom, high-performance in-memory **Sliding Window Rate Limiter**.</p>
+          
+          <div class="section-divider"></div>
+          
+          <h2>Limits & Windows</h2>
+          <p>The rate limiter is applied globally across all API endpoints:</p>
+          
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Property</th>
+                  <th>Value</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Max Requests</strong></td>
+                  <td><code>60</code></td>
+                  <td>Maximum allowable successful queries per IP within the window.</td>
+                </tr>
+                <tr>
+                  <td><strong>Time Window</strong></td>
+                  <td><code>60s</code></td>
+                  <td>Timeframe in seconds for the sliding window bucket.</td>
+                </tr>
+                <tr>
+                  <td><strong>Scope</strong></td>
+                  <td>Client IP</td>
+                  <td>Rate limiting is calculated uniquely per client IP address.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <h2>Response Headers</h2>
+          <p>Every HTTP response returned by the API—including successful <code>200 OK</code> requests and blocked <code>429 Too Many Requests</code> responses—contains active HTTP tracking headers:</p>
+          
+          <div class="code-block-wrapper">
+            <div class="code-block-header">
+              <span class="code-lang">http</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code>X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 59
+X-RateLimit-Reset: 60</code></pre>
+          </div>
+          
+          <ul>
+            <li><strong><code>X-RateLimit-Limit</code></strong>: The maximum number of requests allowed inside the active window.</li>
+            <li><strong><code>X-RateLimit-Remaining</code></strong>: The number of requests remaining inside your active window.</li>
+            <li><strong><code>X-RateLimit-Reset</code></strong>: The exact number of seconds until your sliding window bucket completely clears and resets back to maximum capacity.</li>
+          </ul>
+          
+          <h2>Memory-Safe Garbage Collection</h2>
+          <p>Unlike naive in-memory rate limiters that cause memory leaks over time by storing infinite IP history blocks, the VelocityRL rate limiter runs a periodic cleanup daemon:</p>
+          <ul>
+            <li><strong>Sweep Frequency</strong>: Every 300 seconds (5 minutes), the rate-limiter sweeps its tracking dictionaries.</li>
+            <li><strong>Pruning Strategy</strong>: Completely purges inactive IP histories from system RAM, ensuring stable, low-overhead memory consumption on production nodes.</li>
+          </ul>
+          
+          <h2>Rate Limit Reached Response</h2>
+          <p>When a client IP exceeds 60 requests in the active rolling window, the API immediately halts request execution and yields a lightweight, standard JSON structure with HTTP status code <code>429 Too Many Requests</code>:</p>
+          
+          <div class="code-block-wrapper">
+            <div class="code-block-header">
+              <span class="code-lang">json</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code>HTTP/2 429 Too Many Requests
+Content-Type: application/json
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 42
+
+{
+  "detail": "Too Many Requests. Please slow down (limit: 60 requests/min)."
+}</code></pre>
+          </div>
+        </section>
+        
+        <!-- SECTION 4: LOCALIZATION -->
+        <section id="localization" class="doc-section">
+          <h1>🌍 <span class="title-gradient">Global Localization</span></h1>
+          <p>VelocityRL supports translation capabilities matching Rocket League's global client distribution. It resolves, caches, and filters dynamic asset translations across **12 official languages** directly inside the API payload.</p>
+          
+          <div class="section-divider"></div>
+          
+          <h2>Language Code Mapping</h2>
+          <p>The API accommodates both standard ISO-639 2-letter codes and Rocket League's internal Psyonix 3-letter (upper or lower case) language designations.</p>
+          
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Language Name</th>
+                  <th>Standard 2-Letter Key</th>
+                  <th>Psyonix 3-Letter Code</th>
+                  <th>Default Fallback</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>English</strong></td>
+                  <td><code>en</code></td>
+                  <td><code>INT</code></td>
+                  <td>Yes</td>
+                </tr>
+                <tr>
+                  <td><strong>Spanish</strong></td>
+                  <td><code>es</code></td>
+                  <td><code>ESN</code></td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td><strong>French</strong></td>
+                  <td><code>fr</code></td>
+                  <td><code>FRA</code></td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td><strong>German</strong></td>
+                  <td><code>de</code></td>
+                  <td><code>DEU</code></td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td><strong>Italian</strong></td>
+                  <td><code>it</code></td>
+                  <td><code>ITA</code></td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td><strong>Portuguese (Brazilian)</strong></td>
+                  <td><code>pt</code></td>
+                  <td><code>PTB</code></td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td><strong>Japanese</strong></td>
+                  <td><code>ja</code></td>
+                  <td><code>JPN</code></td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td><strong>Korean</strong></td>
+                  <td><code>ko</code></td>
+                  <td><code>KOR</code></td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td><strong>Russian</strong></td>
+                  <td><code>ru</code></td>
+                  <td><code>RUS</code></td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td><strong>Turkish</strong></td>
+                  <td><code>tr</code></td>
+                  <td><code>TRK</code></td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td><strong>Dutch</strong></td>
+                  <td><code>nl</code></td>
+                  <td><code>DUT</code></td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td><strong>Polish</strong></td>
+                  <td><code>pl</code></td>
+                  <td><code>POL</code></td>
+                  <td>-</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <h2>Language Resolution Pipeline</h2>
+          <p>When you specify a language query via the <code>lang</code> parameter (e.g., <code>lang=es</code> or <code>lang=ESN</code>), the API executes a safe, fast resolution chain:</p>
+          
+          <ol>
+            <li><strong>Resolution Keying</strong>: If the query matches a standard 2-letter format, it matches instantly. If it matches a Psyonix 3-letter code, it maps it internally.</li>
+            <li><strong>Atomic Fallback</strong>: If the item does not have a translation in the requested language, or the language code is invalid, the engine falls back to English (<code>en</code>) gracefully to ensure a robust response.</li>
+            <li><strong>Translation Dictionary Pruning</strong>: The database contains complete translations in a nested <code>translations</code> dictionary. To minimize bandwidth and optimize client-side parsing, the API removes this full translations block from products endpoints and replaces the root <code>name</code> field directly with the resolved localized string.</li>
+          </ol>
+          
+          <h2>Query Example</h2>
+          <p>Fetching a Decal with Spanish (ESN) Localization:</p>
+          
+          <div class="code-block-wrapper">
+            <div class="code-block-header">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code>curl -s "https://api.sfdb.dev/v2/rl/products?lang=esn&category=decal&limit=1"</code></pre>
+          </div>
+          
+          <h3>Localized Response Payload</h3>
+          <div class="code-block-wrapper">
+            <div class="code-block-header">
+              <span class="code-lang">json</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code>{
+  "meta": {
+    "returned": 1,
+    "total_filtered": 3173,
+    "limit": 1,
+    "offset": 0
+  },
+  "products": [
+    {
+      "id": 6133,
+      "name": "007's Aston Martin DB5: Reel Life",
+      "category_id": "decal",
+      "category": "Decal",
+      "quality_id": 4,
+      "quality": "Import",
+      "paintable": false,
+      "tradable": false,
+      "blueprint": false,
+      "source": "product_dump",
+      "thumbnail_url": null
+    }
+  ]
+}</code></pre>
+          </div>
+        </section>
+        
+        <!-- SECTION 5: API ENDPOINTS -->
+        <section id="endpoints" class="doc-section">
+          <h1>📡 <span class="title-gradient">API Endpoints Reference</span></h1>
+          <p>VelocityRL exposes endpoints under <code>/v2/rl/</code> to browse, search, and manage localized item configurations. All endpoints are accessible over secure HTTPS.</p>
+          
+          <div class="section-divider"></div>
+          
+          <!-- ENDPOINT 1 -->
+          <div class="endpoint-panel">
+            <div class="endpoint-panel-header">
+              <span class="method method-get">GET</span>
+              <span class="endpoint-path">/v2/rl/products</span>
+            </div>
+            <div class="endpoint-panel-body">
+              <p>Retrieves, filters, and searches the complete database of Rocket League items in-memory.</p>
+              
+              <h3>Query Parameters</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Parameter</th>
+                      <th>Type</th>
+                      <th>Required</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>category</code></td>
+                      <td><code>string</code></td>
+                      <td>No</td>
+                      <td>Filter by category ID (e.g., <code>body</code>, <code>wheel</code>, <code>decal</code>, <code>boost</code>, <code>topper</code>).</td>
+                    </tr>
+                    <tr>
+                      <td><code>search</code></td>
+                      <td><code>string</code></td>
+                      <td>No</td>
+                      <td>Case-insensitive name search. Matches both default (English) and translated localized names.</td>
+                    </tr>
+                    <tr>
+                      <td><code>lang</code></td>
+                      <td><code>string</code></td>
+                      <td>No</td>
+                      <td>Language translation identifier. Supports 2-letter ISO (e.g. <code>es</code>) or 3-letter Psyonix codes (e.g. <code>ESN</code>). Defaults to <code>en</code>.</td>
+                    </tr>
+                    <tr>
+                      <td><code>limit</code></td>
+                      <td><code>integer</code></td>
+                      <td>No</td>
+                      <td>Maximum number of results to return (Pagination). Set to <code>0</code> for unlimited. Defaults to <code>0</code>.</td>
+                    </tr>
+                    <tr>
+                      <td><code>offset</code></td>
+                      <td><code>integer</code></td>
+                      <td>No</td>
+                      <td>Number of records to skip (Pagination). Defaults to <code>0</code>.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <h3>Sample Request</h3>
+              <div class="code-block-wrapper">
+                <div class="code-block-header">
+                  <span class="code-lang">bash</span>
+                  <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>curl -s "https://api.sfdb.dev/v2/rl/products?category=wheel&search=cristiano&limit=1"</code></pre>
+              </div>
+              
+              <h3>Sample Response</h3>
+              <div class="code-block-wrapper">
+                <div class="code-block-header">
+                  <span class="code-lang">json</span>
+                  <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>{
+  "meta": {
+    "returned": 1,
+    "total_filtered": 5,
+    "limit": 1,
+    "offset": 0
+  },
+  "products": [
+    {
+      "id": 386,
+      "name": "Cristiano",
+      "category_id": "wheel",
+      "category": "Wheels",
+      "quality_id": 3,
+      "quality": "Very Rare",
+      "paintable": true,
+      "tradable": true,
+      "blueprint": false,
+      "source": "product_dump",
+      "thumbnail_url": "/thumbnails/wheel_soccerball_t.png"
+    }
+  ]
+}</code></pre>
+              </div>
+            </div>
+          </div>
+          
+          <!-- ENDPOINT 2 -->
+          <div class="endpoint-panel">
+            <div class="endpoint-panel-header">
+              <span class="method method-get">GET</span>
+              <span class="endpoint-path">/v2/rl/products/{product_id}</span>
+            </div>
+            <div class="endpoint-panel-body">
+              <p>Retrieves exact metadata details for a single item by its ID.</p>
+              
+              <h3>Path Parameters</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Parameter</th>
+                      <th>Type</th>
+                      <th>Required</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>product_id</code></td>
+                      <td><code>string</code></td>
+                      <td>Yes</td>
+                      <td>The numeric identifier of the Rocket League item.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <h3>Query Parameters</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Parameter</th>
+                      <th>Type</th>
+                      <th>Required</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>lang</code></td>
+                      <td><code>string</code></td>
+                      <td>No</td>
+                      <td>Translation language (2-letter or 3-letter). Defaults to <code>en</code>.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <h3>Sample Request</h3>
+              <div class="code-block-wrapper">
+                <div class="code-block-header">
+                  <span class="code-lang">bash</span>
+                  <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>curl -s "https://api.sfdb.dev/v2/rl/products/386?lang=de"</code></pre>
+              </div>
+              
+              <h3>Sample Response</h3>
+              <div class="code-block-wrapper">
+                <div class="code-block-header">
+                  <span class="code-lang">json</span>
+                  <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>{
+  "id": 386,
+  "name": "Cristiano",
+  "category_id": "wheel",
+  "category": "Wheels",
+  "quality_id": 3,
+  "quality": "Very Rare",
+  "paintable": true,
+  "tradable": true,
+  "blueprint": false,
+  "source": "product_dump",
+  "thumbnail_url": "/thumbnails/wheel_soccerball_t.png"
+}</code></pre>
+              </div>
+            </div>
+          </div>
+          
+          <!-- ENDPOINT 3 -->
+          <div class="endpoint-panel">
+            <div class="endpoint-panel-header">
+              <span class="method method-get">GET</span>
+              <span class="endpoint-path">/v2/rl/categories</span>
+            </div>
+            <div class="endpoint-panel-body">
+              <p>Retrieves a detailed dictionary of all item categories along with their respective item counts in the active database.</p>
+              
+              <h3>Sample Request</h3>
+              <div class="code-block-wrapper">
+                <div class="code-block-header">
+                  <span class="code-lang">bash</span>
+                  <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>curl -s "https://api.sfdb.dev/v2/rl/categories"</code></pre>
+              </div>
+              
+              <h3>Sample Response</h3>
+              <div class="code-block-wrapper">
+                <div class="code-block-header">
+                  <span class="code-lang">json</span>
+                  <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>{
+  "categories": {
+    "antenna": 963,
+    "avatar_border": 171,
+    "body": 298,
+    "boost": 427,
+    "decal": 3173,
+    "engine_audio": 244,
+    "goal_explosion": 312,
+    "goal_stinger": 246,
+    "paint_finish": 148,
+    "player_banner": 730,
+    "player_title": 1,
+    "topper": 590,
+    "trail": 204,
+    "wheel": 1221
+  }
+}</code></pre>
+              </div>
+            </div>
+          </div>
+          
+          <!-- ENDPOINT 4 -->
+          <div class="endpoint-panel">
+            <div class="endpoint-panel-header">
+              <span class="method method-get">GET</span>
+              <span class="endpoint-path">/v2/rl/meta</span>
+            </div>
+            <div class="endpoint-panel-body">
+              <p>Provides administrative metadata, dump details, and item counts parsed from the game binaries.</p>
+              
+              <h3>Sample Request</h3>
+              <div class="code-block-wrapper">
+                <div class="code-block-header">
+                  <span class="code-lang">bash</span>
+                  <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>curl -s "https://api.sfdb.dev/v2/rl/meta"</code></pre>
+              </div>
+              
+              <h3>Sample Response</h3>
+              <div class="code-block-wrapper">
+                <div class="code-block-header">
+                  <span class="code-lang">json</span>
+                  <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>{
+  "game_version": "++Prime+Update58.1-CL-517210",
+  "dump_fingerprint": "4fec64afc788",
+  "generated_at": "2026-05-22T19:30:19.499515+00:00",
+  "total_items": 8728,
+  "from_dump": 7173,
+  "from_upk_scan": 1555,
+  "named_via_psynet_cache": 471,
+  "psynet_cache_size": 544,
+  "categories": {
+    "antenna": 963,
+    "avatar_border": 171,
+    "body": 298,
+    "boost": 427,
+    "decal": 3173,
+    "engine_audio": 244,
+    "goal_explosion": 312,
+    "goal_stinger": 246,
+    "paint_finish": 148,
+    "player_banner": 730,
+    "player_title": 1,
+    "topper": 590,
+    "trail": 204,
+    "wheel": 1221
+  }
+}</code></pre>
+              </div>
+            </div>
+          </div>
+          
+          <!-- ENDPOINT 5 -->
+          <div class="endpoint-panel">
+            <div class="endpoint-panel-header">
+              <span class="method method-post">POST</span>
+              <span class="endpoint-path">/v2/rl/refresh</span>
+            </div>
+            <div class="endpoint-panel-body">
+              <p>Triggers the backend mapping parser engine to reload local Unreal package dumps and Psynet web caches to overwrite <code>items.json</code> and hot-reload API memory thread-safely.</p>
+              
+              <h3>Sample Request</h3>
+              <div class="code-block-wrapper">
+                <div class="code-block-header">
+                  <span class="code-lang">bash</span>
+                  <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>curl -X POST -s "https://api.sfdb.dev/v2/rl/refresh"</code></pre>
+              </div>
+              
+              <h3>Sample Response</h3>
+              <div class="code-block-wrapper">
+                <div class="code-block-header">
+                  <span class="code-lang">json</span>
+                  <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>{
+  "status": "ok",
+  "meta": {
+    "game_version": "++Prime+Update58.1-CL-517210",
+    "dump_fingerprint": "4fec64afc788",
+    "generated_at": "2026-05-22T21:04:10.125914+00:00",
+    "total_items": 8728,
+    "from_dump": 7173,
+    "from_upk_scan": 1555,
+    "named_via_psynet_cache": 471,
+    "psynet_cache_size": 544,
+    "categories": {
+      "antenna": 963,
+      "avatar_border": 171,
+      "body": 298,
+      "boost": 427,
+      "decal": 3173,
+      "engine_audio": 244,
+      "goal_explosion": 312,
+      "goal_stinger": 246,
+      "paint_finish": 148,
+      "player_banner": 730,
+      "player_title": 1,
+      "topper": 590,
+      "trail": 204,
+      "wheel": 1221
+    }
+  }
+}</code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+      </div>
+    </main>
+    
+  </div>
+
+  <script>
+    // Initialize Mermaid diagram loading
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        background: '#07080d',
+        primaryColor: '#3b82f6',
+        primaryTextColor: '#f3f4f6',
+        lineColor: '#a855f7',
+        textColor: '#9ca3af'
+      }
+    });
+
+    // Single Page Application Navigation Router
+    const navItems = document.querySelectorAll('.nav-item');
+    const docSections = document.querySelectorAll('.doc-section');
+    const scrollContainer = document.querySelector('.page-container');
+
+    function navigateToSection(targetId) {
+      // Deactivate all nav items and sections
+      navItems.forEach(item => item.classList.remove('active'));
+      docSections.forEach(section => section.classList.remove('active'));
+
+      // Activate selected section
+      const activeNav = document.querySelector(`.nav-item[data-target="${targetId}"]`);
+      const activeSection = document.getElementById(targetId);
+
+      if (activeNav && activeSection) {
+        activeNav.classList.add('active');
+        activeSection.classList.add('active');
+        // Scroll back to top smoothly
+        scrollContainer.scrollTop = 0;
+      }
+    }
+
+    // Attach click listeners to sidebar links
+    navItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        const targetId = item.getAttribute('data-target');
+        // Let the hashchange event handle the actual state routing
+        window.location.hash = targetId;
+      });
+    });
+
+    // Handle back button / page load hashes
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.substring(1);
+      if (hash) {
+        navigateToSection(hash);
+      }
+    });
+
+    // Initial load route check
+    const initialHash = window.location.hash.substring(1);
+    if (initialHash) {
+      navigateToSection(initialHash);
+    }
+
+    // Code copy function
+    function copyCode(button) {
+      const codeBlock = button.parentElement.nextElementSibling.querySelector('code');
+      const textToCopy = codeBlock.innerText;
+
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        button.innerText = 'Copied!';
+        button.classList.add('copied');
+        
+        setTimeout(() => {
+          button.innerText = 'Copy';
+          button.classList.remove('copied');
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy text: ', err);
+      });
+    }
+  </script>
+</body>
+</html>
