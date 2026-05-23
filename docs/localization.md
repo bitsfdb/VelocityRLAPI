@@ -66,6 +66,7 @@ curl -s "https://api.sfdb.dev/v2/rl/products?lang=esn&category=decal&limit=1"
     {
       "id": 6133,
       "name": "007's Aston Martin DB5: Reel Life",
+      "internal_name": "Decal_007AstinMartin",
       "category_id": "decal",
       "category": "Decal",
       "quality_id": 4,

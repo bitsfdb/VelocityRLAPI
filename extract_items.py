@@ -341,9 +341,11 @@ def scan_new_upk_items(asset_index: dict, loc_map: dict[str, dict[str, str]]) ->
             merged_translations[lang_code] = translations.get(lang_code) or eng_display
 
         cat_id, cat_display = SLOT_MAP[slot_id]
+        internal_name = re.sub(r"(?i)_T\d*$|_T$", "", stem)
         new_items.append({
             "id":               None,
             "name":             eng_display,
+            "internal_name":    internal_name,
             "category_id":      cat_id,
             "category":         cat_display,
             "quality_id":       None,
@@ -395,8 +397,10 @@ def build_output() -> dict:
         cat_id, cat_display = SLOT_MAP[slot_id]
         
         # Try to find codename stem in loc_map using Product Thumbnail Asset
-        asset = (entry.get("Product Thumbnail Asset") or "").strip().lower()
+        asset_raw  = (entry.get("Product Thumbnail Asset") or "").strip()
+        asset      = asset_raw.lower()
         asset_stem = re.sub(r"(?i)_t\d*$|_t$", "", asset)
+        internal_name = re.sub(r"(?i)_t\d*$|_t$", "", asset_raw)
         
         translations = loc_map.get(asset_stem) or {}
         eng_display = entry["Product Long Label"]
@@ -411,6 +415,7 @@ def build_output() -> dict:
         items.append({
             "id":               entry["Product Id"],
             "name":             eng_display,
+            "internal_name":    internal_name,
             "category_id":      cat_id,
             "category":         cat_display,
             "quality_id":       quality_id,

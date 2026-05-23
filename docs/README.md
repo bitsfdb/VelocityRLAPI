@@ -1,5 +1,7 @@
 # VelocityRL API
 
+**[Full documentation available in the GitHub Wiki](https://github.com/bitsfdb/VelocityRLAPI/wiki)**
+
 Welcome to the **VelocityRL API** developer documentation. This is a high-performance, developer-centric, secure API designed for querying, searching, and managing Rocket League products and item metadata parsed directly from localized game files.
 
 > This API is used by the **[VelocityRL Repository](https://github.com/bitsfdb/VelocityRLAPI)** to power item metadata lookups and localized name resolution.
@@ -42,6 +44,7 @@ curl -s "https://api.sfdb.dev/v2/rl/products?lang=es&category=wheel&search=crist
     {
       "id": 386,
       "name": "Cristiano",
+      "internal_name": "Wheel_SoccerBall",
       "category_id": "wheel",
       "category": "Wheels",
       "quality_id": 3,

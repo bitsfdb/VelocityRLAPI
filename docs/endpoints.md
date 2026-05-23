@@ -40,6 +40,7 @@ curl -s "https://api.sfdb.dev/v2/rl/products?category=wheel&search=cristiano&lim
     {
       "id": 386,
       "name": "Cristiano",
+      "internal_name": "Wheel_SoccerBall",
       "category_id": "wheel",
       "category": "Wheels",
       "quality_id": 3,
@@ -86,6 +87,7 @@ curl -s "https://api.sfdb.dev/v2/rl/products/386?lang=de"
 {
   "id": 386,
   "name": "Cristiano",
+  "internal_name": "Wheel_SoccerBall",
   "category_id": "wheel",
   "category": "Wheels",
   "quality_id": 3,
