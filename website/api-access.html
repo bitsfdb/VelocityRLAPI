@@ -401,82 +401,89 @@
   </footer>
 
   <script>
-    const PK = document.querySelector('meta[name="clerk-pk"]')?.content;
-
-    // Checkbox gate — wired immediately, no Clerk dependency
+    const PK    = document.querySelector('meta[name="clerk-pk"]')?.content;
+    const gate     = document.getElementById('agreement-gate');
+    const mount    = document.getElementById('clerk-mount');
+    const signedIn = document.getElementById('signed-in');
     const checkTerms   = document.getElementById('check-terms');
     const checkPrivacy = document.getElementById('check-privacy');
     const proceedBtn   = document.getElementById('proceed-btn');
+
+    // Checkbox gate — wired immediately
     function updateBtn() {
       proceedBtn.disabled = !(checkTerms.checked && checkPrivacy.checked);
     }
     checkTerms.addEventListener('change', updateBtn);
     checkPrivacy.addEventListener('change', updateBtn);
 
-    async function initClerk() {
-      if (!PK || !window.Clerk) return;
-      await window.Clerk.load({ publishableKey: PK });
-
-      const gate     = document.getElementById('agreement-gate');
-      const mount    = document.getElementById('clerk-mount');
-      const signedIn = document.getElementById('signed-in');
-
-      proceedBtn.addEventListener('click', () => {
-        gate.style.display  = 'none';
-        mount.style.display = 'block';
-        window.Clerk.mountSignIn(mount, {
-          routing: 'virtual',
-          afterSignInUrl:  window.location.href,
-          afterSignUpUrl:  window.location.href,
-          signUpUrl: window.location.href + '?mode=signup',
-        });
-      });
-
-      async function showSignedIn() {
-        gate.style.display      = 'none';
-        mount.style.display     = 'none';
-        signedIn.style.display  = 'flex';
-
-        const user  = window.Clerk.user;
-        const email = user?.primaryEmailAddress?.emailAddress ?? user?.id ?? 'unknown';
-        document.getElementById('user-email').textContent = email;
-
-        try {
-          const token = await window.Clerk.session.getToken();
-          document.getElementById('token-display').textContent = token;
-          document.getElementById('copy-token-btn').addEventListener('click', () => {
-            navigator.clipboard.writeText(token);
-            const btn = document.getElementById('copy-token-btn');
-            btn.textContent = 'Copied!';
-            setTimeout(() => btn.textContent = 'Copy', 2000);
-          });
-        } catch {
-          document.getElementById('token-display').textContent = 'Could not load token. Refresh the page.';
+    // Load Clerk lazily — returns a promise that resolves once Clerk.load() completes
+    let _clerkPromise = null;
+    function loadClerk() {
+      if (_clerkPromise) return _clerkPromise;
+      _clerkPromise = new Promise((resolve, reject) => {
+        function attempt() {
+          if (window.Clerk) {
+            window.Clerk.load({ publishableKey: PK }).then(resolve).catch(reject);
+          } else {
+            setTimeout(attempt, 50);
+          }
         }
-
-        document.getElementById('sign-out-btn').addEventListener('click', async () => {
-          await window.Clerk.signOut();
-          window.location.reload();
-        });
-      }
-
-      if (window.Clerk.user) {
-        await showSignedIn();
-      } else {
-        window.Clerk.addListener(({ user }) => {
-          if (user) showSignedIn();
-        });
-      }
+        attempt();
+      });
+      return _clerkPromise;
     }
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initClerk);
-    } else {
-      // Clerk script is async — wait for it
-      const interval = setInterval(() => {
-        if (window.Clerk) { clearInterval(interval); initClerk(); }
-      }, 50);
+    async function showSignedIn() {
+      gate.style.display     = 'none';
+      mount.style.display    = 'none';
+      signedIn.style.display = 'flex';
+
+      const user  = window.Clerk.user;
+      const email = user?.primaryEmailAddress?.emailAddress ?? user?.id ?? 'unknown';
+      document.getElementById('user-email').textContent = email;
+
+      try {
+        const token = await window.Clerk.session.getToken();
+        document.getElementById('token-display').textContent = token;
+        document.getElementById('copy-token-btn').onclick = () => {
+          navigator.clipboard.writeText(token);
+          const btn = document.getElementById('copy-token-btn');
+          btn.textContent = 'Copied!';
+          setTimeout(() => btn.textContent = 'Copy', 2000);
+        };
+      } catch {
+        document.getElementById('token-display').textContent = 'Could not load token — refresh the page.';
+      }
+
+      document.getElementById('sign-out-btn').onclick = async () => {
+        await window.Clerk.signOut();
+        window.location.reload();
+      };
     }
+
+    // Proceed button — loads Clerk on demand
+    proceedBtn.addEventListener('click', async () => {
+      gate.style.display  = 'none';
+      mount.style.display = 'block';
+      mount.innerHTML     = '<p style="color:var(--text-muted);font-size:14px;padding:24px 0 0;">Loading...</p>';
+      try {
+        await loadClerk();
+        mount.innerHTML = '';
+        if (window.Clerk.user) {
+          await showSignedIn();
+        } else {
+          window.Clerk.mountSignIn(mount, { routing: 'virtual' });
+          window.Clerk.addListener(({ user }) => { if (user) showSignedIn(); });
+        }
+      } catch (err) {
+        mount.innerHTML = '<p style="color:var(--text-muted);font-size:14px;padding:24px 0 0;">Failed to load sign-in. Please refresh.</p>';
+      }
+    });
+
+    // If already signed in on page load, skip the gate
+    loadClerk().then(() => {
+      if (window.Clerk.user) showSignedIn();
+    }).catch(() => {});
   </script>
 
 </body>
