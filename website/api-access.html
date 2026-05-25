@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
-  <script async src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+  <script async src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" data-clerk-publishable-key="pk_live_Y2xlcmsudmVsb2NpdHlybC50ZWNoJA"></script>
   <meta name="clerk-pk" content="pk_live_Y2xlcmsudmVsb2NpdHlybC50ZWNoJA" />
   <style>
     .page-wrap {
@@ -416,14 +416,16 @@
     checkTerms.addEventListener('change', updateBtn);
     checkPrivacy.addEventListener('change', updateBtn);
 
-    // Load Clerk lazily — returns a promise that resolves once Clerk.load() completes
+    // Wait for Clerk script to load (it auto-inits via data-clerk-publishable-key)
     let _clerkPromise = null;
     function loadClerk() {
       if (_clerkPromise) return _clerkPromise;
       _clerkPromise = new Promise((resolve, reject) => {
         function attempt() {
-          if (window.Clerk) {
-            window.Clerk.load({ publishableKey: PK }).then(resolve).catch(reject);
+          if (window.Clerk?.loaded) {
+            resolve();
+          } else if (window.Clerk) {
+            window.Clerk.load().then(resolve).catch(reject);
           } else {
             setTimeout(attempt, 50);
           }
