@@ -330,7 +330,7 @@
             <span>I have read the <a href="/privacy.html" target="_blank">VelocityRL Privacy Policy</a> and understand what data is collected when using the API.</span>
           </label>
 
-          <button id="proceed-btn" disabled>Continue to sign in</button>
+          <button id="proceed-btn" disabled>Continue</button>
         </div>
 
         <!-- Clerk component (shown after agreeing) -->
@@ -466,8 +466,20 @@
       gate.style.display  = 'none';
       mount.style.display = 'block';
       mount.innerHTML     = '<p style="color:var(--text-muted);font-size:14px;padding:24px 0 0;">Loading...</p>';
+      mount.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0;gap:16px;">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="animation:spin 1s linear infinite;">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+          </svg>
+          <div style="text-align:center;">
+            <p style="color:var(--text);font-weight:600;font-size:15px;margin-bottom:4px;">Almost there!</p>
+            <p style="color:var(--text-muted);font-size:13px;">Setting up your sign-in...</p>
+          </div>
+        </div>
+        <style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>`;
       try {
-        await loadClerk();
+        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 12000));
+        await Promise.race([loadClerk(), timeout]);
         mount.innerHTML = '';
         if (window.Clerk.user) {
           await showSignedIn();
@@ -476,7 +488,7 @@
           window.Clerk.addListener(({ user }) => { if (user) showSignedIn(); });
         }
       } catch (err) {
-        mount.innerHTML = '<p style="color:var(--text-muted);font-size:14px;padding:24px 0 0;">Failed to load sign-in. Please refresh.</p>';
+        mount.innerHTML = '<p style="color:var(--text-muted);font-size:14px;padding:24px 0 0;">Could not connect to sign-in service. Please try again in a moment.</p>';
       }
     });
 
