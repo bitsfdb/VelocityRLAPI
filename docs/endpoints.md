@@ -23,7 +23,7 @@ Retrieves, filters, and searches the complete database of Rocket League items in
 ### Sample Request
 
 ```bash
-curl -s "https://api.sfdb.dev/v2/rl/products?category=wheel&search=cristiano&limit=1"
+curl -s "https://api.velocityrl.tech/v2/rl/products?category=wheel&search=cristiano&limit=1"
 ```
 
 ### Sample Response
@@ -78,7 +78,7 @@ Retrieves exact metadata details for a single item by its ID.
 ### Sample Request
 
 ```bash
-curl -s "https://api.sfdb.dev/v2/rl/products/386?lang=de"
+curl -s "https://api.velocityrl.tech/v2/rl/products/386?lang=de"
 ```
 
 ### Sample Response
@@ -121,7 +121,7 @@ Retrieves a detailed dictionary of all item categories along with their respecti
 ### Sample Request
 
 ```bash
-curl -s "https://api.sfdb.dev/v2/rl/categories"
+curl -s "https://api.velocityrl.tech/v2/rl/categories"
 ```
 
 ### Sample Response
@@ -158,7 +158,7 @@ Provides administrative metadata, dump details, and item counts parsed from the 
 ### Sample Request
 
 ```bash
-curl -s "https://api.sfdb.dev/v2/rl/meta"
+curl -s "https://api.velocityrl.tech/v2/rl/meta"
 ```
 
 ### Sample Response
@@ -203,7 +203,7 @@ Triggers the backend mapping parser engine to reload local Unreal package dumps 
 ### Sample Request
 
 ```bash
-curl -X POST -s "https://api.sfdb.dev/v2/rl/refresh"
+curl -X POST -s "https://api.velocityrl.tech/v2/rl/refresh"
 ```
 
 ### Sample Response

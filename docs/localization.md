@@ -49,7 +49,7 @@ graph TD
 ### Fetching a Decal with Spanish (ESN) Localization
 
 ```bash
-curl -s "https://api.sfdb.dev/v2/rl/products?lang=esn&category=decal&limit=1"
+curl -s "https://api.velocityrl.tech/v2/rl/products?lang=esn&category=decal&limit=1"
 ```
 
 #### Localized Response Payload

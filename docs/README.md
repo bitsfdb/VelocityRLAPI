@@ -36,12 +36,12 @@ The API serves as a secure, fast, and unified source of truth for Rocket League 
 
 ## Quick Start
 
-The public API is hosted securely at `api.sfdb.dev`.
+The public API is hosted securely at `api.velocityrl.tech`.
 
 ### Fetching Cristiano Wheels (Spanish translation, limit 1)
 
 ```bash
-curl -s "https://api.sfdb.dev/v2/rl/products?lang=es&category=wheel&search=cristiano&limit=1"
+curl -s "https://api.velocityrl.tech/v2/rl/products?lang=es&category=wheel&search=cristiano&limit=1"
 ```
 
 #### Response Payload
@@ -78,7 +78,7 @@ curl -s "https://api.sfdb.dev/v2/rl/products?lang=es&category=wheel&search=crist
 ## Base Path & Endpoints
 
 All requests should be routed over `HTTPS` to:
-`https://api.sfdb.dev`
+`https://api.velocityrl.tech`
 
 | Endpoint | Method | Description |
 | :--- | :--- | :--- |
