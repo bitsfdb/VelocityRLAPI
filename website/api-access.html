@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
-  <script async src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" data-clerk-publishable-key="pk_live_Y2xlcmsudmVsb2NpdHlybC50ZWNoJA"></script>
+  <script async src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
   <meta name="clerk-pk" content="pk_live_Y2xlcmsudmVsb2NpdHlybC50ZWNoJA" />
   <style>
     .page-wrap {
@@ -484,7 +484,16 @@
         if (window.Clerk.user) {
           await showSignedIn();
         } else {
-          window.Clerk.mountSignIn(mount, { routing: 'virtual' });
+          try {
+            window.Clerk.mountSignIn(mount, { routing: 'virtual' });
+          } catch (mountErr) {
+            // Fallback: open hosted Clerk sign-in page
+            mount.innerHTML = `<p style="color:var(--text-muted);font-size:14px;padding:12px 0;">
+              Embedded sign-in unavailable (${mountErr.message}).
+              <a href="https://accounts.velocityrl.tech/sign-in?redirect_url=${encodeURIComponent(location.href)}"
+                 style="color:var(--accent);">Sign in here instead</a>
+            </p>`;
+          }
           window.Clerk.addListener(({ user }) => { if (user) showSignedIn(); });
         }
       } catch (err) {
