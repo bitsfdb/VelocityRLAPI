@@ -416,16 +416,14 @@
     checkTerms.addEventListener('change', updateBtn);
     checkPrivacy.addEventListener('change', updateBtn);
 
-    // Wait for Clerk script to load (it auto-inits via data-clerk-publishable-key)
+    // Wait for Clerk script then explicitly load UI components
     let _clerkPromise = null;
     function loadClerk() {
       if (_clerkPromise) return _clerkPromise;
       _clerkPromise = new Promise((resolve, reject) => {
         function attempt() {
-          if (window.Clerk?.loaded) {
-            resolve();
-          } else if (window.Clerk) {
-            window.Clerk.load().then(resolve).catch(reject);
+          if (window.Clerk) {
+            window.Clerk.load({ publishableKey: PK }).then(resolve).catch(reject);
           } else {
             setTimeout(attempt, 50);
           }
