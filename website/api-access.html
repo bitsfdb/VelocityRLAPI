@@ -485,15 +485,11 @@
         if (window.Clerk.user) {
           await showSignedIn();
         } else {
+          mount.innerHTML = '';
           try {
-            window.Clerk.mountSignIn(mount, { routing: 'virtual' });
-          } catch (mountErr) {
-            // Fallback: open hosted Clerk sign-in page
-            mount.innerHTML = `<p style="color:var(--text-muted);font-size:14px;padding:12px 0;">
-              Embedded sign-in unavailable (${mountErr.message}).
-              <a href="https://accounts.velocityrl.tech/sign-in?redirect_url=${encodeURIComponent(location.href)}"
-                 style="color:var(--accent);">Sign in here instead</a>
-            </p>`;
+            window.Clerk.openSignIn({ afterSignInUrl: location.href, afterSignUpUrl: location.href });
+          } catch (e) {
+            window.location.href = `https://accounts.velocityrl.tech/sign-in?redirect_url=${encodeURIComponent(location.href)}`;
           }
           window.Clerk.addListener(({ user }) => { if (user) showSignedIn(); });
         }
