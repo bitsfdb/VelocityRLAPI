@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — VelocityRL</title>
+  <meta name="description" content="VelocityRL privacy policy — what data the app and API collect and why." />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .policy-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 72px 24px 96px;
+    }
+    .policy-wrap h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+    }
+    .policy-meta {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 52px;
+    }
+    .policy-wrap h2 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      margin: 40px 0 10px;
+    }
+    .policy-wrap p, .policy-wrap li {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.75;
+    }
+    .policy-wrap ul {
+      padding-left: 20px;
+      margin: 10px 0 0;
+    }
+    .policy-wrap li { margin-bottom: 6px; }
+    .policy-wrap a { color: var(--accent); }
+    .policy-wrap a:hover { text-decoration: underline; }
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+    .highlight-box {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+    .highlight-box p {
+      margin: 0;
+      color: var(--text);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="logo">VelocityRL</a>
+      <div class="nav-links">
+        <a href="/#how-it-works">How it works</a>
+        <a href="https://api.velocityrl.tech/docs" target="_blank">API</a>
+        <a href="https://github.com/bitsfdb/VelocityRL/releases" target="_blank">Releases</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="policy-wrap">
+    <h1>Privacy Policy</h1>
+    <p class="policy-meta">Last updated: May 25, 2025 &nbsp;·&nbsp; VelocityRL by bitsfdb</p>
+
+    <div class="highlight-box">
+      <p>VelocityRL does not collect personal information. No accounts are required, no tracking pixels are used, and no advertising data is gathered. This policy explains specifically what minimal data does leave your machine and why.</p>
+    </div>
+
+    <h2>1. The Desktop App</h2>
+    <p>VelocityRL is a local application — all item swapping happens entirely on your machine. The app communicates with the internet in two ways:</p>
+
+    <h2>1a. Item catalog fetch</h2>
+    <p>On first launch (and periodically thereafter) the app makes a single <code>GET</code> request to <code>api.velocityrl.tech/items.json</code> to download the Rocket League item database. This is a standard HTTPS request. The response is cached locally in your app data folder; the app works offline once cached. No data about you is sent in this request beyond what a normal HTTP request includes (your IP address and the request timestamp, which are logged by our server for up to 7 days as described in section 3).</p>
+
+    <h2>1b. Crash and error diagnostics</h2>
+    <p>When specific errors occur, the app sends a small diagnostic report to our API. Diagnostics are only sent on failure — never during normal use. Each report contains:</p>
+    <ul>
+      <li>The event type (<code>swap_fail</code>, <code>init_fail</code>, or <code>integrity_fail</code>)</li>
+      <li>App version, operating system, and CPU architecture</li>
+      <li>A Unix timestamp</li>
+      <li>On swap failure: the item IDs involved (numeric identifiers, not item names), the <em>folder name</em> of your game directory (not the full path), the engine exit code, and engine stderr/stdout output</li>
+      <li>On init failure: the error message and stack trace from the app runtime</li>
+      <li>On integrity failure: the expected and actual SHA-256 checksums of the engine binary</li>
+    </ul>
+    <p>Diagnostic reports do not contain your name, email, Epic account, file system paths beyond the game folder name, or any other personally identifying information.</p>
+
+    <h2>1c. Epic catalog fetch (optional)</h2>
+    <p>The app has an optional feature to fetch your owned Rocket League items directly from Epic Games. If you use this feature, you enter an Epic auth token manually. That token is passed only to the local <code>velocity-engine</code> sidecar process, which communicates directly with Epic's servers. The token is never sent to VelocityRL's servers and is not stored on disk.</p>
+
+    <h2>1d. Local storage</h2>
+    <p>The app saves one configuration file to your local app data directory containing only the path to your Rocket League game folder. This file never leaves your machine.</p>
+
+    <hr class="divider" />
+
+    <h2>2. The Website (velocityrl.tech)</h2>
+    <p>The website is a static HTML/CSS page served directly from our server. It loads fonts from <strong>Google Fonts</strong> (<code>fonts.googleapis.com</code>), which means Google receives a request including your IP address and browser user-agent when the page loads. If you want to avoid this, you can block the font request — it has no effect on functionality.</p>
+    <p>The website does not use cookies, tracking scripts, analytics platforms (no Google Analytics, no Plausible, no similar services), or advertising networks.</p>
+
+    <hr class="divider" />
+
+    <h2>3. The Public API (api.velocityrl.tech)</h2>
+    <p>The VelocityRL API is a public, unauthenticated REST API serving Rocket League item data. When you make a request to the API:</p>
+    <ul>
+      <li>Your IP address is recorded in memory to enforce the rate limit (60 requests per minute). This in-memory record is automatically purged after the window expires and is not written to disk.</li>
+      <li>Standard web server access logs are kept for up to 7 days. These logs contain the request path, HTTP status code, response size, timestamp, IP address, and user-agent string. They are used only for debugging and are not shared with third parties.</li>
+    </ul>
+    <p>The API has no authentication, no user accounts, and no persistent record of who requested what.</p>
+
+    <hr class="divider" />
+
+    <h2>4. Data sharing</h2>
+    <p>We do not sell, rent, or share any data with third parties. Diagnostic data and server logs are used exclusively for debugging VelocityRL and are accessible only to the project maintainer.</p>
+
+    <h2>5. Data retention</h2>
+    <ul>
+      <li>Server access logs: deleted after 7 days</li>
+      <li>Rate-limit records: purged from memory after 1 minute</li>
+      <li>Diagnostic reports: retained indefinitely for debugging; contain no personal data</li>
+    </ul>
+
+    <h2>6. Children</h2>
+    <p>VelocityRL does not knowingly collect any information from users under the age of 13. If you believe a minor has submitted diagnostic data and would like it removed, contact us at the address below.</p>
+
+    <h2>7. Changes to this policy</h2>
+    <p>If this policy changes in a meaningful way, we will update the date at the top and note the change in the GitHub repository. Continued use of the app or API after a change constitutes acceptance of the updated policy.</p>
+
+    <h2>8. Contact</h2>
+    <p>Questions about this policy can be directed to <a href="mailto:mustafaalbareh@gmail.com">mustafaalbareh@gmail.com</a> or via a GitHub issue at <a href="https://github.com/bitsfdb/VelocityRL" target="_blank">github.com/bitsfdb/VelocityRL</a>.</p>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="logo">VelocityRL</span>
+          <p>Not affiliated with Psyonix or Epic Games.<br>For personal use only.</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/bitsfdb/VelocityRL" target="_blank">GitHub</a>
+          <a href="https://api.velocityrl.tech/docs" target="_blank">API Docs</a>
+          <a href="/privacy.html">Privacy</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>VelocityRL is not responsible for any game modifications. Use at your own risk.</span>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
