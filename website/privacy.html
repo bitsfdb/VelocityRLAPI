@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Privacy Policy — VelocityRL</title>
-  <meta name="description" content="VelocityRL privacy policy — what data the app and API collect and why." />
+  <title>Privacy Policy - VelocityRL</title>
+  <meta name="description" content="VelocityRL privacy policy: what data the app and API collect and why." />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -87,13 +87,13 @@
     </div>
 
     <h2>1. The Desktop App</h2>
-    <p>VelocityRL is a local application — all item swapping happens entirely on your machine. The app communicates with the internet in two ways:</p>
+    <p>VelocityRL is a local application. All item swapping happens entirely on your machine. The app communicates with the internet in two ways:</p>
 
     <h2>1a. Item catalog fetch</h2>
     <p>On first launch (and periodically thereafter) the app makes a single <code>GET</code> request to <code>api.velocityrl.tech/items.json</code> to download the Rocket League item database. This is a standard HTTPS request. The response is cached locally in your app data folder; the app works offline once cached. No data about you is sent in this request beyond what a normal HTTP request includes (your IP address and the request timestamp, which are logged by our server for up to 7 days as described in section 3).</p>
 
     <h2>1b. Crash and error diagnostics</h2>
-    <p>When specific errors occur, the app sends a small diagnostic report to our API. Diagnostics are only sent on failure — never during normal use. Each report contains:</p>
+    <p>When specific errors occur, the app sends a small diagnostic report to our API. Diagnostics are only sent on failure, never during normal use. Each report contains:</p>
     <ul>
       <li>The event type (<code>swap_fail</code>, <code>init_fail</code>, or <code>integrity_fail</code>)</li>
       <li>App version, operating system, and CPU architecture</li>
@@ -113,7 +113,7 @@
     <hr class="divider" />
 
     <h2>2. The Website (velocityrl.tech)</h2>
-    <p>The website is a static HTML/CSS page served directly from our server. It loads fonts from <strong>Google Fonts</strong> (<code>fonts.googleapis.com</code>), which means Google receives a request including your IP address and browser user-agent when the page loads. If you want to avoid this, you can block the font request — it has no effect on functionality.</p>
+    <p>The website is a static HTML/CSS page served directly from our server. It loads fonts from <strong>Google Fonts</strong> (<code>fonts.googleapis.com</code>), which means Google receives a request including your IP address and browser user-agent when the page loads. If you want to avoid this, you can block the font request. It has no effect on functionality.</p>
     <p>The website does not use cookies, tracking scripts, analytics platforms (no Google Analytics, no Plausible, no similar services), or advertising networks.</p>
 
     <hr class="divider" />
