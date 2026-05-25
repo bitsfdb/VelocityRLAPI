@@ -20,3 +20,9 @@ __pycache__/
 
 # Runtime state
 .watcher_state.json
+
+# Discord bot — runtime and secrets
+bot/node_modules/
+bot/data/
+bot/.env
+bot/.env.*

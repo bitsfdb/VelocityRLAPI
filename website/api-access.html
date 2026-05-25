@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Access - VelocityRL</title>
+  <meta name="description" content="Sign in to get higher API rate limits for the VelocityRL item catalog." />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script async src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+  <meta name="clerk-pk" content="pk_test_d29ya2FibGUtamF5LTQwLmNsZXJrLmFjY291bnRzLmRldiQ" />
+  <style>
+    .page-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 64px 24px 96px;
+    }
+
+    .notice-bar {
+      background: rgba(79, 110, 247, 0.08);
+      border: 1px solid rgba(79, 110, 247, 0.2);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .notice-bar svg { flex-shrink: 0; margin-top: 1px; color: var(--accent); }
+    .notice-bar strong { color: var(--text); }
+
+    .page-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+    .page-sub {
+      font-size: 17px;
+      color: var(--text-muted);
+      margin-bottom: 52px;
+      max-width: 560px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .perks { display: flex; flex-direction: column; gap: 20px; }
+
+    .perk {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .perk-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(79,110,247,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .perk-text h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .perk-text p  { font-size: 14px; color: var(--text-muted); line-height: 1.55; }
+
+    .auth-panel {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 32px;
+    }
+
+    /* Agreement gate */
+    #agreement-gate { display: flex; flex-direction: column; gap: 16px; }
+    #agreement-gate h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    #agreement-gate p  { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+    .agree-check {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 14px 16px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .agree-check:has(input:checked) { border-color: var(--accent); }
+    .agree-check input { margin-top: 2px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
+    .agree-check span  { font-size: 14px; color: var(--text-muted); line-height: 1.5; cursor: pointer; }
+    .agree-check a     { color: var(--accent); }
+
+    #proceed-btn {
+      width: 100%;
+      margin-top: 4px;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-family: var(--font);
+      transition: background 0.15s, opacity 0.15s;
+    }
+    #proceed-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    #proceed-btn:not(:disabled):hover { background: var(--accent-hover); }
+
+    /* Clerk mount */
+    #clerk-mount { min-height: 300px; }
+    #clerk-mount .cl-rootBox { width: 100%; }
+
+    /* Signed-in state */
+    #signed-in { display: none; flex-direction: column; gap: 20px; }
+
+    .token-block {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .token-block-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .token-block-header span { font-size: 12px; color: var(--text-muted); font-family: var(--mono); }
+    .copy-btn {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font);
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .copy-btn:hover { background: var(--accent-dim); }
+    .token-value {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+      padding: 12px 14px;
+      word-break: break-all;
+      line-height: 1.6;
+      max-height: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+
+    .user-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .user-info { font-size: 14px; color: var(--text-muted); }
+    .user-info strong { color: var(--text); }
+    .sign-out-btn {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 6px 14px;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .sign-out-btn:hover { border-color: #3a3a5c; color: var(--text); }
+
+    .rate-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid rgba(74, 222, 128, 0.2);
+      border-radius: 100px;
+      padding: 4px 12px;
+    }
+    .rate-badge svg { color: #4ade80; }
+
+    .curl-example {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .curl-header {
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--text-muted);
+      background: var(--bg-2);
+    }
+    .curl-body {
+      padding: 14px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--text);
+      word-break: break-all;
+    }
+    .curl-body .kw  { color: #93c5fd; }
+    .curl-body .str { color: #86efac; }
+    .curl-body .url { color: var(--accent); }
+
+    .expiry-note {
+      font-size: 13px;
+      color: var(--text-muted);
+      padding: 10px 14px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .expiry-note a { color: var(--accent); }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="logo">
+        <img src="/logo.svg" alt="VelocityRL" width="28" height="28" style="border-radius:6px;vertical-align:middle;margin-right:8px;">VelocityRL
+      </a>
+      <div class="nav-links">
+        <a href="/#how-it-works">How it works</a>
+        <a href="https://api.velocityrl.tech/docs" target="_blank">API</a>
+        <a href="https://github.com/bitsfdb/VelocityRL/releases" target="_blank">Releases</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-wrap">
+
+    <div class="notice-bar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span><strong>You don't need an account to use the VelocityRL desktop app.</strong> Accounts are only for developers who want higher rate limits on the public REST API.</span>
+    </div>
+
+    <h1 class="page-title">API Access</h1>
+    <p class="page-sub">Create a free account to unlock 300 requests per minute instead of the default 60.</p>
+
+    <div class="layout">
+
+      <div class="perks">
+        <div class="perk">
+          <div class="perk-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 2 13 9 20 9"/><path d="M21 3L13 11"/><path d="M3 15l5 5 9-9"/></svg>
+          </div>
+          <div class="perk-text">
+            <h4>300 requests / minute</h4>
+            <p>5x the unauthenticated limit. Pass your Bearer token on each request to get the higher quota.</p>
+          </div>
+        </div>
+        <div class="perk">
+          <div class="perk-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <div class="perk-text">
+            <h4>Authenticated identity</h4>
+            <p>Rate limit is tied to your account, not your IP. Useful when sharing an IP with other users.</p>
+          </div>
+        </div>
+        <div class="perk">
+          <div class="perk-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div class="perk-text">
+            <h4>Same API, same endpoints</h4>
+            <p>No separate keys to manage. Sign in, copy your session token, and add one header to your requests.</p>
+          </div>
+        </div>
+        <div class="perk">
+          <div class="perk-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="perk-text">
+            <h4>Free, no payment required</h4>
+            <p>API access is free. No credit card, no trial, no expiry.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-panel">
+
+        <!-- Agreement gate (shown before sign-in) -->
+        <div id="agreement-gate">
+          <h3>Create your account</h3>
+          <p>Before continuing, confirm you've read and agreed to the following:</p>
+
+          <label class="agree-check">
+            <input type="checkbox" id="check-terms" />
+            <span>I agree to the <a href="https://clerk.com/terms" target="_blank">Clerk Terms of Service</a>, which governs the authentication service used for this login.</span>
+          </label>
+
+          <label class="agree-check">
+            <input type="checkbox" id="check-privacy" />
+            <span>I have read the <a href="/privacy.html" target="_blank">VelocityRL Privacy Policy</a> and understand what data is collected when using the API.</span>
+          </label>
+
+          <button id="proceed-btn" disabled>Continue to sign in</button>
+        </div>
+
+        <!-- Clerk component (shown after agreeing) -->
+        <div id="clerk-mount" style="display:none;"></div>
+
+        <!-- Signed-in dashboard -->
+        <div id="signed-in">
+          <div class="user-row">
+            <div class="user-info">
+              Signed in as <strong id="user-email"></strong>
+              <span class="rate-badge" style="margin-left:10px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 2 13 9 20 9"/><path d="M21 3L13 11"/><path d="M3 15l5 5 9-9"/></svg>
+                300 req/min
+              </span>
+            </div>
+            <button class="sign-out-btn" id="sign-out-btn">Sign out</button>
+          </div>
+
+          <div>
+            <p style="font-size:14px;font-weight:600;margin-bottom:8px;">Your session token</p>
+            <div class="token-block">
+              <div class="token-block-header">
+                <span>Authorization: Bearer ...</span>
+                <button class="copy-btn" id="copy-token-btn">Copy</button>
+              </div>
+              <div class="token-value" id="token-display">Loading...</div>
+            </div>
+          </div>
+
+          <div class="expiry-note">
+            Session tokens expire after ~1 minute. Call <code>GET /auth/me</code> to verify your token is still valid, and refresh the page to get a new one. For long-running scripts, implement a token refresh loop using the <a href="https://clerk.com/docs" target="_blank">Clerk SDK</a>.
+          </div>
+
+          <div>
+            <p style="font-size:14px;font-weight:600;margin-bottom:8px;">Example request</p>
+            <div class="curl-example">
+              <div class="curl-header">terminal</div>
+              <div class="curl-body">
+                <span class="kw">curl</span> <span class="str">-H</span> <span class="str">"Authorization: Bearer $TOKEN"</span> \<br>
+                &nbsp;&nbsp;<span class="url">https://api.velocityrl.tech/v2/rl/products?limit=5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="logo">VelocityRL</span>
+          <p>Not affiliated with Psyonix or Epic Games.<br>For personal use only.</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/bitsfdb/VelocityRL" target="_blank">GitHub</a>
+          <a href="https://api.velocityrl.tech/docs" target="_blank">API Docs</a>
+          <a href="https://discord.gg/2HhBNbrGMj" target="_blank">Discord</a>
+          <a href="/privacy.html">Privacy</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>VelocityRL is not responsible for any game modifications. Use at your own risk.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const PK = document.querySelector('meta[name="clerk-pk"]')?.content;
+
+    async function initClerk() {
+      if (!PK || !window.Clerk) return;
+      await window.Clerk.load({ publishableKey: PK });
+
+      const gate     = document.getElementById('agreement-gate');
+      const mount    = document.getElementById('clerk-mount');
+      const signedIn = document.getElementById('signed-in');
+      const checkTerms   = document.getElementById('check-terms');
+      const checkPrivacy = document.getElementById('check-privacy');
+      const proceedBtn   = document.getElementById('proceed-btn');
+
+      function updateBtn() {
+        proceedBtn.disabled = !(checkTerms.checked && checkPrivacy.checked);
+      }
+      checkTerms.addEventListener('change', updateBtn);
+      checkPrivacy.addEventListener('change', updateBtn);
+
+      proceedBtn.addEventListener('click', () => {
+        gate.style.display  = 'none';
+        mount.style.display = 'block';
+        window.Clerk.mountSignIn(mount, {
+          routing: 'virtual',
+          afterSignInUrl:  window.location.href,
+          afterSignUpUrl:  window.location.href,
+          signUpUrl: window.location.href + '?mode=signup',
+        });
+      });
+
+      async function showSignedIn() {
+        gate.style.display      = 'none';
+        mount.style.display     = 'none';
+        signedIn.style.display  = 'flex';
+
+        const user  = window.Clerk.user;
+        const email = user?.primaryEmailAddress?.emailAddress ?? user?.id ?? 'unknown';
+        document.getElementById('user-email').textContent = email;
+
+        try {
+          const token = await window.Clerk.session.getToken();
+          document.getElementById('token-display').textContent = token;
+          document.getElementById('copy-token-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(token);
+            const btn = document.getElementById('copy-token-btn');
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy', 2000);
+          });
+        } catch {
+          document.getElementById('token-display').textContent = 'Could not load token. Refresh the page.';
+        }
+
+        document.getElementById('sign-out-btn').addEventListener('click', async () => {
+          await window.Clerk.signOut();
+          window.location.reload();
+        });
+      }
+
+      if (window.Clerk.user) {
+        await showSignedIn();
+      } else {
+        window.Clerk.addListener(({ user }) => {
+          if (user) showSignedIn();
+        });
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initClerk);
+    } else {
+      // Clerk script is async — wait for it
+      const interval = setInterval(() => {
+        if (window.Clerk) { clearInterval(interval); initClerk(); }
+      }, 50);
+    }
+  </script>
+
+</body>
+</html>
