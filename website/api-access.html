@@ -403,6 +403,16 @@
   <script>
     const PK = document.querySelector('meta[name="clerk-pk"]')?.content;
 
+    // Checkbox gate — wired immediately, no Clerk dependency
+    const checkTerms   = document.getElementById('check-terms');
+    const checkPrivacy = document.getElementById('check-privacy');
+    const proceedBtn   = document.getElementById('proceed-btn');
+    function updateBtn() {
+      proceedBtn.disabled = !(checkTerms.checked && checkPrivacy.checked);
+    }
+    checkTerms.addEventListener('change', updateBtn);
+    checkPrivacy.addEventListener('change', updateBtn);
+
     async function initClerk() {
       if (!PK || !window.Clerk) return;
       await window.Clerk.load({ publishableKey: PK });
@@ -410,17 +420,6 @@
       const gate     = document.getElementById('agreement-gate');
       const mount    = document.getElementById('clerk-mount');
       const signedIn = document.getElementById('signed-in');
-      const checkTerms   = document.getElementById('check-terms');
-      const checkPrivacy = document.getElementById('check-privacy');
-      const proceedBtn   = document.getElementById('proceed-btn');
-
-      function updateBtn() {
-        proceedBtn.disabled = !(checkTerms.checked && checkPrivacy.checked);
-      }
-      checkTerms.addEventListener('change', updateBtn);
-      checkPrivacy.addEventListener('change', updateBtn);
-      checkTerms.addEventListener('click', updateBtn);
-      checkPrivacy.addEventListener('click', updateBtn);
 
       proceedBtn.addEventListener('click', () => {
         gate.style.display  = 'none';
