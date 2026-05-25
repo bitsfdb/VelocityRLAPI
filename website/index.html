@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VelocityRL — Rocket League Item Swapper</title>
+  <meta name="description" content="Swap the visual appearance of any Rocket League item instantly. Free, open source, no bans." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+  <link rel="apple-touch-icon" href="/icon-128.png" />
+  <link rel="stylesheet" href="style.css" />
+  <script async src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" type="text/javascript"></script>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="logo">VelocityRL</a>
+      <div class="nav-links">
+        <a href="#how-it-works">How it works</a>
+        <a href="https://api.velocityrl.tech/docs" target="_blank">API</a>
+        <a href="https://github.com/bitsfdb/VelocityRL/releases" target="_blank">Releases</a>
+        <div id="clerk-nav"></div>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-inner">
+<h1>Swap any Rocket League item.<br>Instantly.</h1>
+      <p class="hero-sub">VelocityRL replaces the visual appearance of items in your game files. Drive a Fennec that looks like an Octane. Equip wheels you don't own. It's cosmetic — and it's local.</p>
+      <div class="hero-actions">
+        <a href="https://github.com/bitsfdb/VelocityRL/releases/latest" class="btn-primary" target="_blank">Download for Windows</a>
+        <a href="https://github.com/bitsfdb/VelocityRL/releases/tag/nightly" class="btn-secondary" target="_blank">Nightly Build</a>
+      </div>
+      <p class="hero-note">Windows 10+ &nbsp;·&nbsp; Linux AppImage available &nbsp;·&nbsp; Free forever</p>
+    </div>
+  </header>
+
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <h2>How it works</h2>
+      <p class="section-sub">Three steps. No external tools. Fully reversible.</p>
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">01</span>
+          <h3>Set your game folder</h3>
+          <p>Point VelocityRL at your Rocket League <code>CookedPCConsole</code> directory. It reads your installed game files directly.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">02</span>
+          <h3>Pick your items</h3>
+          <p>Browse the full item catalog. Choose a source item (what you own) and a donor item (what you want it to look like).</p>
+        </div>
+        <div class="step">
+          <span class="step-num">03</span>
+          <h3>Apply the swap</h3>
+          <p>VelocityRL patches the <code>.upk</code> package file for the source item to reference the donor's assets. Launch Rocket League — your item looks different.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="container">
+      <h2>Built to be safe</h2>
+      <p class="section-sub">Every swap is local. Nothing leaves your machine.</p>
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h4>Automatic backups</h4>
+          <p>Every original file is backed up before modification. Restore any swap with one click.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          </div>
+          <h4>Integrity checks</h4>
+          <p>The engine binary is verified against a SHA-256 checksum on every launch. No tampering, no surprises.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+          </div>
+          <h4>Live item database</h4>
+          <p>Item catalog syncs from the VelocityRL API — always up to date with the latest Rocket League content.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+          </div>
+          <h4>UPK-level patching</h4>
+          <p>Operates directly on Unreal Engine 3 package files. Supports bodies, wheels, decals, boosts, and more.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <h4>Open source</h4>
+          <p>The full source is on GitHub — app, engine, and API. Audit it, fork it, contribute.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <h4>Windows &amp; Linux</h4>
+          <p>Native Windows installer plus Linux AppImage. Nightly builds drop every night from the dev branch.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="api-section">
+    <div class="container">
+      <div class="api-inner">
+        <div class="api-text">
+          <div class="badge">For developers</div>
+          <h2>Public REST API</h2>
+          <p>The VelocityRL API exposes the full Rocket League item catalog — names, categories, painted variants, certifications, and thumbnails — in 14 languages.</p>
+          <div class="api-links">
+            <a href="https://api.velocityrl.tech/docs" class="btn-primary" target="_blank">View API Docs</a>
+            <a href="https://api.velocityrl.tech/v2/rl/products?limit=3" class="btn-secondary" target="_blank">Try it live</a>
+          </div>
+        </div>
+        <div class="api-code">
+          <div class="code-header">
+            <span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span>
+            <span class="code-title">GET /v2/rl/products</span>
+          </div>
+          <pre><code>{
+  "meta": {
+    "returned": 5842,
+    "total_filtered": 5842
+  },
+  "products": [
+    {
+      "id": 23,
+      "name": "Fennec",
+      "category_id": "body",
+      "internal_name": "Body_Grain",
+      "thumbnail_url": "/thumbnails/body_grain.png"
+    }
+  ]
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="download-section">
+    <div class="container">
+      <h2>Ready to swap?</h2>
+      <p class="section-sub">Download VelocityRL and start in under a minute.</p>
+      <div class="download-cards">
+        <div class="download-card">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+          <h3>Windows</h3>
+          <p>Installer (.msi) or setup (.exe)</p>
+          <a href="https://github.com/bitsfdb/VelocityRL/releases/latest" class="btn-primary" target="_blank">Download</a>
+        </div>
+        <div class="download-card">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+          <h3>Linux</h3>
+          <p>AppImage — no install needed</p>
+          <a href="https://github.com/bitsfdb/VelocityRL/releases/tag/nightly" class="btn-secondary" target="_blank">Nightly Build</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="logo">VelocityRL</span>
+          <p>Not affiliated with Psyonix or Epic Games.<br>For personal use only.</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/bitsfdb/VelocityRL" target="_blank">GitHub</a>
+          <a href="https://api.velocityrl.tech/docs" target="_blank">API Docs</a>
+          <a href="https://discord.gg/" target="_blank">Discord</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>VelocityRL is not responsible for any game modifications. Use at your own risk.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    window.addEventListener('load', async () => {
+      const clerkPk = document.querySelector('meta[name="clerk-pk"]')?.content;
+      if (!clerkPk) return;
+      await window.Clerk.load({ publishableKey: clerkPk });
+      const nav = document.getElementById('clerk-nav');
+      if (window.Clerk.user) {
+        window.Clerk.mountUserButton(nav);
+      } else {
+        const btn = document.createElement('button');
+        btn.className = 'btn-secondary';
+        btn.textContent = 'Sign in';
+        btn.onclick = () => window.Clerk.openSignIn();
+        nav.appendChild(btn);
+      }
+    });
+  </script>
+</body>
+</html>
