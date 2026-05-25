@@ -488,10 +488,13 @@
           mount.innerHTML = '';
           try {
             window.Clerk.openSignIn({ afterSignInUrl: location.href, afterSignUpUrl: location.href });
+            window.Clerk.addListener(({ user }) => { if (user) showSignedIn(); });
           } catch (e) {
-            window.location.href = `https://accounts.velocityrl.tech/sign-in?redirect_url=${encodeURIComponent(location.href)}`;
+            mount.innerHTML = `<div style="padding:20px 0;text-align:center;">
+              <p style="color:var(--text);font-weight:600;margin-bottom:8px;">Sign-in is almost ready</p>
+              <p style="color:var(--text-muted);font-size:13px;line-height:1.6;">The custom auth domain is still being verified by Clerk.<br>Check back in a few minutes once verification completes in the dashboard.</p>
+            </div>`;
           }
-          window.Clerk.addListener(({ user }) => { if (user) showSignedIn(); });
         }
       } catch (err) {
         mount.innerHTML = `<p style="color:#f87171;font-size:13px;font-family:var(--mono);padding:24px 0 0;word-break:break-all;">${err?.message ?? String(err)}</p>`;
