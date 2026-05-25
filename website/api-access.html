@@ -488,7 +488,8 @@
           window.Clerk.addListener(({ user }) => { if (user) showSignedIn(); });
         }
       } catch (err) {
-        mount.innerHTML = '<p style="color:var(--text-muted);font-size:14px;padding:24px 0 0;">Could not connect to sign-in service. Please try again in a moment.</p>';
+        mount.innerHTML = `<p style="color:#f87171;font-size:13px;font-family:var(--mono);padding:24px 0 0;word-break:break-all;">${err?.message ?? String(err)}</p>`;
+        console.error('[Clerk]', err);
       }
     });
 
