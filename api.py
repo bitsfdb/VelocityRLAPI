@@ -1,6 +1,9 @@
 import base64
+import hashlib
 import json
 import os
+import secrets
+import sqlite3
 import threading
 
 from dotenv import load_dotenv
@@ -78,6 +81,54 @@ async def verify_clerk_token(token: str) -> Optional[dict]:
     except Exception:
         return None
 
+# ---------------------------------------------------------------------------
+# API key store (SQLite)
+# ---------------------------------------------------------------------------
+
+DB_PATH = Path(__file__).parent / "apikeys.db"
+_db_lock = threading.Lock()
+
+def _db() -> sqlite3.Connection:
+    con = sqlite3.connect(str(DB_PATH))
+    con.row_factory = sqlite3.Row
+    return con
+
+def _init_db():
+    with _db_lock, _db() as con:
+        con.execute("""
+            CREATE TABLE IF NOT EXISTS api_keys (
+                id         TEXT PRIMARY KEY,
+                user_id    TEXT NOT NULL,
+                name       TEXT NOT NULL,
+                key_hash   TEXT NOT NULL UNIQUE,
+                created_at INTEGER NOT NULL,
+                last_used  INTEGER,
+                revoked    INTEGER NOT NULL DEFAULT 0
+            )
+        """)
+        con.commit()
+
+_init_db()
+
+KEY_PREFIX = "vrl_"
+
+def _hash_key(raw: str) -> str:
+    return hashlib.sha256(raw.encode()).hexdigest()
+
+def lookup_api_key(raw: str) -> Optional[dict]:
+    """Return the key row if valid and not revoked, else None. Updates last_used."""
+    h = _hash_key(raw)
+    with _db_lock, _db() as con:
+        row = con.execute(
+            "SELECT * FROM api_keys WHERE key_hash=? AND revoked=0", (h,)
+        ).fetchone()
+        if row:
+            con.execute("UPDATE api_keys SET last_used=? WHERE id=?", (int(time.time()), row["id"]))
+            con.commit()
+            return dict(row)
+    return None
+
+
 ICON_PATH = Path(__file__).parent / "bot" / "icon.svg"
 
 THUMBNAILS_DIR = Path("/home/ubuntu/velrl/thumbnails")
@@ -110,10 +161,17 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         limit = MAX_REQUESTS_ANON
         auth = request.headers.get("authorization", "")
         if auth.startswith("Bearer "):
-            payload = await verify_clerk_token(auth[7:])
-            if payload and payload.get("sub"):
-                key = f"user:{payload['sub']}"
-                limit = MAX_REQUESTS_AUTHED
+            token = auth[7:]
+            if token.startswith(KEY_PREFIX):
+                row = lookup_api_key(token)
+                if row:
+                    key = f"apikey:{row['user_id']}"
+                    limit = MAX_REQUESTS_AUTHED
+            else:
+                payload = await verify_clerk_token(token)
+                if payload and payload.get("sub"):
+                    key = f"user:{payload['sub']}"
+                    limit = MAX_REQUESTS_AUTHED
 
         # Periodic cleanup to prevent memory growth
         if now - _last_cleanup > 300:
@@ -209,6 +267,9 @@ def get_lang_key(lang: Optional[str]) -> str:
     return "en"
 
 
+_QUALITY_NORMALIZE = {"VeryRare": "Very Rare", "BlackMarket": "Black Market"}
+
+
 def _thumbnail_url(item: dict) -> str | None:
     asset = (item.get("thumbnail_asset") or "").strip().lower()
     if not asset:
@@ -218,11 +279,23 @@ def _thumbnail_url(item: dict) -> str | None:
 
 
 def format_item(item: dict, lang_key: str, full: bool = False) -> dict:
-    """Resolve localized name, attach thumbnail_url, strip internal fields."""
-    exclude = {"thumbnail_asset"} if full else {"translations", "thumbnail_asset"}
+    """Normalize new-format fields and attach thumbnail_url."""
+    exclude = {"thumbnail_asset", "thumbnail_package", "thumbnail_base64"}
+    if not full:
+        exclude.add("translations")
     formatted = {k: v for k, v in item.items() if k not in exclude}
+
     translations = item.get("translations", {})
-    formatted["name"] = translations.get(lang_key) or item.get("name")
+    formatted["name"] = (translations.get(lang_key)
+                         or item.get("name")
+                         or item.get("label")
+                         or item.get("long_label") or "")
+    formatted["category"] = item.get("category") or item.get("slot") or ""
+    formatted["internal_name"] = item.get("internal_name") or item.get("asset_package") or ""
+    quality_raw = (item.get("quality_label")
+                   if item.get("quality_label")
+                   else (item.get("quality") if isinstance(item.get("quality"), str) else ""))
+    formatted["quality"] = _QUALITY_NORMALIZE.get(quality_raw, quality_raw)
     formatted["thumbnail_url"] = _thumbnail_url(item)
     return formatted
 
@@ -257,14 +330,15 @@ def get_products(
     lang_key = get_lang_key(lang)
 
     if category:
-        items = [i for i in items if i["category_id"] == category.lower()]
+        cat_lower = category.lower()
+        items = [i for i in items if (i.get("category_id") or i.get("slot") or "").lower() == cat_lower]
 
     if search:
         q = search.lower()
         items = [
             i for i in items
-            if q in i.get("translations", {}).get(lang_key, i.get("name", "")).lower()
-            or q in i.get("name", "").lower()
+            if q in (i.get("translations", {}).get(lang_key) or i.get("label") or i.get("name") or "").lower()
+            or q in (i.get("asset_package") or i.get("internal_name") or "").lower()
         ]
 
     total = len(items)
@@ -304,13 +378,46 @@ def get_product(
 def items_json_compat():
     """Compatibility shim for the desktop app — returns raw items list."""
     data = _load()
-    return {"items": data["items"]}
+    compat_items = []
+    for item in data.get("items", []):
+        asset = (item.get("thumbnail_asset") or "").strip().lower()
+        src = ""
+        if asset:
+            png = THUMBNAILS_DIR / f"{asset}.png"
+            if png.exists():
+                src = f"https://api.velocityrl.tech{THUMBNAILS_BASE}/{asset}.png"
+
+        quality_raw = (item.get("quality_label")
+                       if item.get("quality_label")
+                       else (item.get("quality") if isinstance(item.get("quality"), str) else ""))
+        quality_mapped = _QUALITY_NORMALIZE.get(quality_raw, quality_raw)
+
+        asset_package = item.get("asset_package") or ""
+        if asset_package and not asset_package.endswith(".upk"):
+            asset_package = f"{asset_package}_SF.upk"
+
+        compat_items.append({
+            "ID": item.get("id"),
+            "Product": item.get("label") or item.get("name") or "",
+            "Quality": quality_mapped or "",
+            "Slot": item.get("slot") or item.get("category_id") or "",
+            "AssetPackage": asset_package,
+            "AssetPath": item.get("asset_path") or "",
+            "src": src
+        })
+    return {"items": compat_items}
 
 
 @app.get("/v2/rl/categories", summary="List all categories with counts")
 def get_categories():
     data = _load()
-    return {"categories": data["meta"]["categories"]}
+    if "meta" in data and "categories" in data.get("meta", {}):
+        return {"categories": data["meta"]["categories"]}
+    counts: dict[str, int] = {}
+    for i in data["items"]:
+        slot = i.get("slot") or i.get("category_id") or "Unknown"
+        counts[slot] = counts.get(slot, 0) + 1
+    return {"categories": dict(sorted(counts.items()))}
 
 
 @app.get("/v2/rl/attributes", summary="Paint colors and certifications lookup tables")
@@ -324,7 +431,12 @@ def get_attributes():
 @app.get("/v2/rl/meta", summary="Metadata: game version, item count, generated timestamp")
 def get_meta():
     data = _load()
-    return data["meta"]
+    if "meta" in data:
+        return data["meta"]
+    return {
+        "generated_at": data.get("generated_at"),
+        "total_items": data.get("item_count", len(data["items"])),
+    }
 
 
 @app.post("/v2/rl/refresh", summary="Force regenerate items.json from game files")
@@ -363,6 +475,64 @@ async def auth_me(user: dict = Depends(_get_current_user)):
         "plan":       "authenticated",
         "rate_limit": MAX_REQUESTS_AUTHED,
     }
+
+
+class KeyCreateRequest(BaseModel):
+    name: str
+
+
+@app.post("/auth/keys", summary="Create a new API key")
+async def create_key(body: KeyCreateRequest, user: dict = Depends(_get_current_user)):
+    user_id = user.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    name = body.name.strip()
+    if not name or len(name) > 64:
+        raise HTTPException(status_code=400, detail="name must be 1-64 characters")
+    with _db_lock, _db() as con:
+        count = con.execute(
+            "SELECT COUNT(*) FROM api_keys WHERE user_id=? AND revoked=0", (user_id,)
+        ).fetchone()[0]
+        if count >= 10:
+            raise HTTPException(status_code=400, detail="Maximum of 10 active API keys per user")
+    raw = KEY_PREFIX + secrets.token_urlsafe(32)
+    key_id = secrets.token_urlsafe(16)
+    with _db_lock, _db() as con:
+        con.execute(
+            "INSERT INTO api_keys (id, user_id, name, key_hash, created_at) VALUES (?,?,?,?,?)",
+            (key_id, user_id, name, _hash_key(raw), int(time.time()))
+        )
+        con.commit()
+    return {"id": key_id, "name": name, "key": raw, "created_at": int(time.time())}
+
+
+@app.get("/auth/keys", summary="List your API keys")
+async def list_keys(user: dict = Depends(_get_current_user)):
+    user_id = user.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    with _db_lock, _db() as con:
+        rows = con.execute(
+            "SELECT id, name, created_at, last_used FROM api_keys WHERE user_id=? AND revoked=0 ORDER BY created_at DESC",
+            (user_id,)
+        ).fetchall()
+    return {"keys": [dict(r) for r in rows]}
+
+
+@app.delete("/auth/keys/{key_id}", summary="Revoke an API key")
+async def revoke_key(key_id: str, user: dict = Depends(_get_current_user)):
+    user_id = user.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    with _db_lock, _db() as con:
+        result = con.execute(
+            "UPDATE api_keys SET revoked=1 WHERE id=? AND user_id=?",
+            (key_id, user_id)
+        )
+        con.commit()
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Key not found")
+    return {"revoked": True}
 
 
 # ---------------------------------------------------------------------------
