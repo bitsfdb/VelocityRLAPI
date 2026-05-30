@@ -31,6 +31,7 @@ _START_TIME = time.time()
 DIAGNOSTIC_SECRET    = os.getenv("DIAGNOSTIC_SECRET", "")
 INTERNAL_SECRET      = os.getenv("INTERNAL_SECRET", "")
 BOT_URL              = os.getenv("BOT_URL", "http://127.0.0.1:3000")
+UPDATE_MANIFEST_FILE = Path(__file__).parent / "update_manifest.json"
 CLERK_PUBLISHABLE_KEY = os.getenv("CLERK_PUBLISHABLE_KEY", "")
 
 # Derive JWKS URL from publishable key: base64-decode the part after "pk_test_" / "pk_live_"
@@ -598,6 +599,26 @@ class DiagnosticPayload(BaseModel):
     # integrity context
     expected:  Optional[str] = None
     actual:    Optional[str] = None
+
+
+@app.get("/latest.json", include_in_schema=False)
+async def get_update_manifest():
+    if UPDATE_MANIFEST_FILE.exists():
+        return JSONResponse(json.loads(UPDATE_MANIFEST_FILE.read_text()))
+    raise HTTPException(status_code=404, detail="No update manifest published yet")
+
+
+@app.post("/internal/update-manifest", include_in_schema=False)
+async def set_update_manifest(request: Request):
+    ip = request.client.host
+    if ip not in ("127.0.0.1", "::1", "::ffff:127.0.0.1"):
+        raise HTTPException(status_code=403)
+    secret = request.headers.get("x-internal-secret", "")
+    if not INTERNAL_SECRET or secret != INTERNAL_SECRET:
+        raise HTTPException(status_code=401)
+    body = await request.json()
+    UPDATE_MANIFEST_FILE.write_text(json.dumps(body, indent=2))
+    return {"ok": True}
 
 
 @app.post("/diagnostic", summary="Receive diagnostic report from VelocityRL app", include_in_schema=False)
