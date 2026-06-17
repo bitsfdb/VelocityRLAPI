@@ -428,7 +428,8 @@ def get_categories():
         return {"categories": data["meta"]["categories"]}
     counts: dict[str, int] = {}
     for i in data["items"]:
-        slot = i.get("slot") or i.get("category_id") or "Unknown"
+        # fallback to uppercase legacy 'Slot' if lowercase properties miss
+        slot = i.get("slot") or i.get("category_id") or i.get("Slot") or "Unknown"
         counts[slot] = counts.get(slot, 0) + 1
     return {"categories": dict(sorted(counts.items()))}
 
