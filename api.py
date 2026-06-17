@@ -280,24 +280,36 @@ def _thumbnail_url(item: dict) -> str | None:
 
 
 def format_item(item: dict, lang_key: str, full: bool = False) -> dict:
-    """Normalize new-format fields and attach thumbnail_url."""
+    """Normalize fields from either capitalized or lowercase formats."""
     exclude = {"thumbnail_asset", "thumbnail_package", "thumbnail_base64"}
     if not full:
         exclude.add("translations")
     formatted = {k: v for k, v in item.items() if k not in exclude}
 
+    # Extract properties safely regardless of payload casing
+    item_id = item.get("id") if item.get("id") is not None else item.get("ID")
+    raw_name = item.get("name") or item.get("label") or item.get("Product") or ""
+    category = item.get("category") or item.get("slot") or item.get("Slot") or ""
+    internal_name = item.get("internal_name") or item.get("asset_package") or item.get("AssetPackage") or ""
+    
+    # Resolve quality mappings safely
+    quality_raw = (item.get("quality_label") 
+                   or item.get("quality") 
+                   or item.get("Quality") 
+                   or "")
+    if not isinstance(quality_raw, str):
+        quality_raw = ""
+
     translations = item.get("translations", {})
-    formatted["name"] = (translations.get(lang_key)
-                         or item.get("name")
-                         or item.get("label")
-                         or item.get("long_label") or "")
-    formatted["category"] = item.get("category") or item.get("slot") or ""
-    formatted["internal_name"] = item.get("internal_name") or item.get("asset_package") or ""
-    quality_raw = (item.get("quality_label")
-                   if item.get("quality_label")
-                   else (item.get("quality") if isinstance(item.get("quality"), str) else ""))
+    
+    # Assign back to standardized internal keys
+    formatted["id"] = item_id
+    formatted["name"] = translations.get(lang_key) or raw_name
+    formatted["category"] = category
+    formatted["internal_name"] = internal_name
     formatted["quality"] = _QUALITY_NORMALIZE.get(quality_raw, quality_raw)
     formatted["thumbnail_url"] = _thumbnail_url(item)
+    
     return formatted
 
 
